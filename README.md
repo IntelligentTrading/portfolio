@@ -31,3 +31,14 @@ This JS web app provides the hosted service and UI for managing a portfolio of a
 - [ ] credit card processing for subscription payments
 - [ ] shared view other users's fund performance (leaderboard)
 - [ ] copy-trading other users's portfolio allocation settings
+
+
+# UI and Design
+
+### TBD
+
+links
+
+- https://material-ui.com/page-layout-examples/dashboard/
+- https://demos.creative-tim.com/material-dashboard-react/#/dashboard
+- http://themes.getbootstrap.com/preview/?theme_id=8214&show_new=
