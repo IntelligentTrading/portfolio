@@ -5,7 +5,7 @@ This JS web app provides the hosted service and UI for managing a portfolio of a
 ### Scope
 
 - [ ] create account with email, password
-- [ ] complete questionaire according to legal requirements (1942 Act)
+- [ ] complete questionaire according to legal requirements (1940 Act)
 - [ ] save API keys for Binance, CoinbasePro
 - [ ] subscribe to SNS topics for ITF signals and indicators
 - [ ] display currencies available on connected exchanges
