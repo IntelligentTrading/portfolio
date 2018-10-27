@@ -49,7 +49,7 @@ if LOCAL or STAGE:
     logging.getLogger('boto').setLevel(logging.INFO)
     logging.getLogger('pyqs').setLevel(logging.INFO)
 
-logger.info("Deployment environment detected: {}".format(dt_key))
+logger.info("Deployment environment detected: {}".format(DEPLOYMENT_TYPE))
 
 
 
