@@ -1,4 +1,7 @@
 import os
+
+import dj_database_url
+
 from settings import LOCAL, PRODUCTION, STAGE
 
 
@@ -40,14 +43,12 @@ if not LOCAL:
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['RDS_DB_NAME'],
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
         }
     }
+
+    db_from_env = dj_database_url.config(conn_max_age=600, ssl_require=True)
+    DATABASES['default'].update(db_from_env)
+
 
 # Memcached Cloud settings
 # https://devcenter.heroku.com/articles/memcachedcloud
@@ -89,5 +90,5 @@ CACHE_MIDDLEWARE_KEY_PREFIX = ''
 # Celery settings
 CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379') # if env not set use local redis server
 
-
+ITF_TRADING_API_URL = os.environ.get('ITF_TRADING_API_URL', 'abc123')
 ITF_TRADING_API_KEY = os.environ.get('ITF_TRADING_API_KEY', 'abc123')
