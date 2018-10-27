@@ -7,7 +7,7 @@ from apps.common.behaviors import Timestampable
 
 class Portfolio(Timestampable, models.Model):
 
-    user = models.OneToOneField(AUTH_USER_MODEL)
+    user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
 
@@ -19,7 +19,6 @@ class Portfolio(Timestampable, models.Model):
 
     class Meta:
         verbose_name_plural = 'portfolios'
-
 
 
 
