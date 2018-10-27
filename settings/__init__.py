@@ -25,18 +25,12 @@ sys.path.append(BASE_DIR + "/vendorlibs")
 
 # DEFINE THE ENVIRONMENT TYPE
 PRODUCTION = STAGE = DEMO = LOCAL = False
-dt_key = os.environ.get('DEPLOYMENT_TYPE', 'LOCAL')
-if dt_key == 'PRODUCTION':
-    PRODUCTION = True
-elif dt_key == 'DEMO':
-    DEMO = True
-elif dt_key == 'STAGE':
-    STAGE = True
-elif dt_key == 'LOCAL':
-    LOCAL = True
-else:
-    raise Exception("Cannot find the DEPLOYMENT_TYPE environment variable. This is to be provided along with other vital env vars. If this instance is running locally, the '.env' file must be provided. If this instance is running on production, the environment variables have not been set up correctly. See the readme.md for more details.")
+DEPLOYMENT_TYPE = os.environ.get('DEPLOYMENT_TYPE')
 
+PRODUCTION = 'PRODUCTION' in DEPLOYMENT_TYPE.upper()
+DEMO = 'DEMO' in DEPLOYMENT_TYPE.upper()
+STAGE = 'STAGE' in DEPLOYMENT_TYPE.upper()
+LOCAL = 'LOCAL' in DEPLOYMENT_TYPE.upper()
 
 # Set up logger
 if LOCAL:
