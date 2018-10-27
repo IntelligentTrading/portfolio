@@ -1,21 +1,25 @@
 import uuid
 from django.contrib.postgres.fields import JSONField
-from django.conf.global_settings import AUTH_USER_MODEL
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from django.db import models
 from apps.common.behaviors import Timestampable
 
 
 class Portfolio(Timestampable, models.Model):
-
-    user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    user = models.OneToOneField(
+        User, null=False, on_delete=models.CASCADE, related_name="portfolio"
+    )
+
 
 
     # MODEL PROPERTIES
 
     # MODEL FUNCTIONS
     def __str__(self):
-        return f"{user.id}_portfolio"
+        return f"{self.user.id}_portfolio"
 
     class Meta:
         verbose_name_plural = 'portfolios'

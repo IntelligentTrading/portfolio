@@ -4,7 +4,9 @@ from django.contrib import admin
 
 
 from django.contrib import admin
+
 from apps.portfolio.models.portfolio import Portfolio, ExchangeAccount, AllocationSnapshot
+
 
 @admin.register(Portfolio)
 class PortfolioAdmin(admin.ModelAdmin):
