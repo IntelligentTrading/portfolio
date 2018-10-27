@@ -81,7 +81,9 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 ]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    'django_extensions',
+]
 
 LOCAL_APPS = [
     # 'apps.user',
@@ -92,13 +94,12 @@ LOCAL_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -121,25 +122,14 @@ TEMPLATES = [{
     },
 }, ]
 
-# AUTH_USER_MODEL = 'user.User'
+LOGIN_REDIRECT_URL = '/portfolio/'
 
 WSGI_APPLICATION = 'settings.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE':   'django.db.backends.postgresql_psycopg2',
-        'NAME':     'ITF-Portfolio',
-        'USER':     'tomcounsell',
-        'PASSWORD': '',
-        'HOST':     'localhost',
-        'PORT':     '5432',
-    }
-}
-
+# DATABASES = {}
 
 
 # Password validation
@@ -179,3 +169,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+try:
+    from settings.vendor_settings import *
+except Exception as e:
+    logger.warning("Failed to import vendor_services_settings.")
+    logger.warning(str(e))
+
+
+if LOCAL:
+    logger.info("LOCAL environment detected. Importing local_settings.py")
+    try:
+        from settings.local_settings import *
+    except:
+        logger.error("Could not successfully import local_settings.py. This is necessary if you are running locally. This file should be in version control.")
+        raise
+
