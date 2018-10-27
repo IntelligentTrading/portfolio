@@ -11,12 +11,20 @@
 
 {% block content %}
 
-BTC Value: {{BTC_value}}
+  BTC Value: {{BTC_value}}
 
+  <h1>Allocations</h1>
 
-<h1>Allocations</h1>
-{{ allocations }}
+  <ul>
+    {% for allocation in allocations %}
 
+      <li>
+        {% widthratio allocation.portion 1 100 %}%
+        |
+        {{allocation.coin}}
+      </li>
 
+    {% endfor %}
+  </ul>
 
 {% endblock content %}
