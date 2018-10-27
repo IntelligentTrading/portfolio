@@ -19,7 +19,7 @@ class Portfolio(Timestampable, models.Model):
 
     # MODEL FUNCTIONS
     def __str__(self):
-        return f"{self.user.id}_portfolio"
+        return f"{self.user.username}_portfolio"
 
     class Meta:
         verbose_name_plural = 'portfolios'
@@ -42,7 +42,7 @@ class ExchangeAccount(Timestampable, models.Model):
 
     # MODEL FUNCTIONS
     def __str__(self):
-        return f"binance_account_{self.id}"
+        return f"{self.portfolio.user.username}_binance_account"
 
     class Meta:
         verbose_name_plural = 'exchange_accounts'
