@@ -1,0 +1,16 @@
+version: '2'
+services:
+  postgres:
+    image: postgres
+  web:
+    build:
+        context: .
+        dockerfile: ./compose/django/Dockerfile
+    entrypoint: /entrypoint.sh
+    command: /start-dev.sh
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres

@@ -1,0 +1,14 @@
+machine:
+  services:
+    - docker
+dependencies:
+  pre:
+    - docker --version
+    - docker-compose --version
+
+test:
+  pre:
+    - docker run -d --name postgres postgres
+    - docker build -f ./compose/django/Dockerfile -t prince/sample-django-app-project .
+  override:
+    - docker run --name web --link postgres:postgres --entrypoint /entrypoint.sh prince/sample-django-app-project python manage.py test
