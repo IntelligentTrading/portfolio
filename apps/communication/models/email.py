@@ -3,8 +3,8 @@ import requests
 from django.core.mail import EmailMessage
 from django.db import models
 
-from common.models import Upload
-from common.behaviors import Timestampable
+from apps.common.models import Upload
+from apps.common.behaviors import Timestampable
 
 
 class Email(Timestampable, models.Model):

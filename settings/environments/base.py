@@ -41,9 +41,9 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = []
 
 LOCAL_APPS = [
-    'common',
-    'communication',
-    'user'
+    'apps.user',
+    'apps.common',
+    'apps.communication',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -59,7 +59,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'settings.urls'
 
 TEMPLATES = [
     {
@@ -77,7 +77,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+# AUTH_USER_MODEL = 'user.User'
+
+WSGI_APPLICATION = 'settings.wsgi.application'
 
 
 # Database
@@ -85,13 +87,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'postgres',
-        'PORT': 5432
+        'ENGINE':   'django.db.backends.postgresql_psycopg2',
+        'NAME':     'ITF-Portfolio',
+        'USER':     'tomcounsell',
+        'PASSWORD': '',
+        'HOST':     'localhost',
+        'PORT':     '5432',
     }
 }
+
 
 
 # Password validation

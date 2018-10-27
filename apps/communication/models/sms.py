@@ -1,6 +1,6 @@
 from django.db import models
 
-from common.behaviors import Timestampable
+from apps.common.behaviors import Timestampable
 
 
 class SMS(Timestampable, models.Model):
