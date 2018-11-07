@@ -25,12 +25,12 @@ sys.path.append(BASE_DIR + "/vendorlibs")
 
 # DEFINE THE ENVIRONMENT TYPE
 PRODUCTION = STAGE = DEMO = LOCAL = False
-DEPLOYMENT_TYPE = os.environ.get('DEPLOYMENT_TYPE')
+DEPLOYMENT_TYPE = os.environ.get('DEPLOYMENT_TYPE', 'LOCAL').upper()
 
-PRODUCTION = 'PRODUCTION' in DEPLOYMENT_TYPE.upper()
-DEMO = 'DEMO' in DEPLOYMENT_TYPE.upper()
-STAGE = 'STAGE' in DEPLOYMENT_TYPE.upper()
-LOCAL = 'LOCAL' in DEPLOYMENT_TYPE.upper()
+PRODUCTION = 'PRODUCTION' in DEPLOYMENT_TYPE
+DEMO = 'DEMO' in DEPLOYMENT_TYPE
+STAGE = 'STAGE' in DEPLOYMENT_TYPE
+LOCAL = 'LOCAL' in DEPLOYMENT_TYPE
 
 # Set up logger
 if LOCAL:
@@ -52,15 +52,11 @@ if LOCAL or STAGE:
 logger.info("Deployment environment detected: {}".format(DEPLOYMENT_TYPE))
 
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!t+3@kje943sn(0k!0zsu@57kknfsutp_=v+c=@9sz8vj(i5t+'
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not PRODUCTION
 
 ALLOWED_HOSTS = [
     '.herokuapp.com',
