@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block tab_title %}
+  Allocations
+{% endblock tab_title %}
+
+{#{% block content_title %}#}
+{#  Portfolio#}
+{#{% endblock content_title %}#}
+
+{% block content %}
+
+  BTC Value: {{ allocation_snapshot.BTC_price }}
+
+  <h1>Current Portfolio</h1>
+
+  <ul>
+    {% for coin_allocation in allocation_snapshot.allocation_data %}
+      {% with coin=coin_allocation.0 portion=coin_allocation.1 %}
+
+      <li>
+        {% widthratio portion 1 100 %}%
+        |
+        {{ coin }}
+      </li>
+
+    {% endfor %}
+  </ul>
+
+{% endblock content %}
