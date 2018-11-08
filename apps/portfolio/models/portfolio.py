@@ -14,7 +14,6 @@ class Portfolio(Timestampable, models.Model):
     )
 
 
-
     # MODEL PROPERTIES
 
     # MODEL FUNCTIONS
@@ -26,14 +25,13 @@ class Portfolio(Timestampable, models.Model):
 
 
 
-
-
 class ExchangeAccount(Timestampable, models.Model):
 
     portfolio = models.ForeignKey(
         'portfolio.Portfolio', null=False, on_delete=models.CASCADE, related_name="exchange_accounts"
     )
 
+    # exchange = models.SmallIntegerField(choices=EXCHANGE_CHOICES, null=False)
     api_key = models.CharField(max_length=64, null=True, blank=True)
     secret_key = models.CharField(max_length=64, null=True, blank=True)
 
@@ -46,9 +44,6 @@ class ExchangeAccount(Timestampable, models.Model):
 
     class Meta:
         verbose_name_plural = 'exchange_accounts'
-
-
-
 
 
 

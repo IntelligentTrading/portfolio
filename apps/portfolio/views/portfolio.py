@@ -1,12 +1,11 @@
 import logging
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import View
-import json
-import requests
 
-from apps.portfolio.models.portfolio import Portfolio
-from settings import ITF_TRADING_API_URL, ITF_TRADING_API_KEY
+from apps.portfolio.forms import ExchangeAccountForm
+from apps.portfolio.models.portfolio import Portfolio, ExchangeAccount
+from apps.portfolio.services.trading import get_binance_portfolio_data
 
 
 class PortfolioView(View):
@@ -32,27 +31,24 @@ class PortfolioView(View):
         return render(request, 'portfolio.html', context)
 
 
+class ExchangeSetupView(View):
+    def dispatch(self, request, *args, **kwargs):
+        self.exchange_account = request.user.portfolio.exchange_accounts.first()
+        return super().dispatch(request, *args, **kwargs)
 
-def get_binance_portfolio_data(binance_account):
+    def get(self, request):
 
-    api_url_base = ITF_TRADING_API_URL
-    api_url = api_url_base + "portfolio/"
-    headers = {'Content-Type': 'application/json'}
-
-    data = {
-        "api_key": ITF_TRADING_API_KEY,
-        "binance": {
-            "api_key": binance_account.api_key,
-            "secret_key": binance_account.secret_key
+        context = {
+            "exchange_account": self.exchange_account,
+            "exchange_setup_form": ExchangeAccountForm(instance=self.exchange_account)
         }
-    }
+        return render(request, 'exchange_setup.html', context)
 
-    logging.debug(data)
+    def post(self, request):
+        if not self.exchange_account:
+            self.exchange_account = ExchangeAccount()
 
-    response = requests.post(api_url, json=data, headers=headers)
+        self.exchange_account.api_key = request.POST.get("api_key")
+        self.exchange_account.secret_key = request.POST.get("secret_key")
 
-    logging.debug(response.text)
-
-    if response.status_code == 200:
-        data = response.json()
-        return data['binance']
+        return redirect('portfolio:dashboard')
