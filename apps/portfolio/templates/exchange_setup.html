@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block tab_title %}
+  Portfolio
+{% endblock tab_title %}
+
+{% block content_title %}
+  Portfolio
+{% endblock content_title %}
+
+{% block content %}
+
+  <h1>Binance Setup</h1>
+
+
+  <form action="" method="post">
+    {% csrf_token %}
+    {{ exchange_setup_form }}
+    <input type="submit" value="Submit">
+  </form>
+
+{% endblock content %}
