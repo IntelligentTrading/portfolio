@@ -53,7 +53,7 @@ def get_allocations_from_signals():
     url = ITF_CORE_API_URL + "v2/signals/"
 
     signals = []
-
+    source = BINANCE
     for horizon in [MEDIUM_HORIZON, ]:  # SHORT_HORIZON, MEDIUM_HORIZON, LONG_HORIZON
         search_startdate = datetime.now() - timedelta(hours=(
                 horizon_periods[horizon] * horizon_life_spans[horizon]
@@ -62,7 +62,7 @@ def get_allocations_from_signals():
             url, headers={"API-KEY": ITF_CORE_API_KEY},
             params={
                 "horizon": horizon,
-                "source": BINANCE,
+                "source": source,
                 "startdate": search_startdate.strftime('%Y-%m-%dT%H:%M:%S'),
                 "page_size": 1000,
                 "resample_period": 240,
@@ -84,6 +84,8 @@ def get_allocations_from_signals():
 
     for signal in signals:
         transaction_currency = str(signal['transaction_currency'])
+        if source == BINANCE:
+            transaction_currency = "BCC" if transaction_currency == "BCH" else transaction_currency
         counter_currency = str(get_counter_currency_name(signal['counter_currency']))
         timestamp = datetime.strptime(signal['timestamp'], '%Y-%m-%dT%H:%M:%S')
 
