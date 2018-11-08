@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,30 +22,23 @@
   <!--FAVICON--> <!--iOS and Android icons-->
   <!--{#  <link rel="apple-touch-icon-precomposed" href="{{ STATIC_URL }}images/apple-touch-icon-152x152.png">#}-->
 
-  {% if DEBUG %}
-    <link href="{{ STATIC_URL }}vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ STATIC_URL }}vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-    <script src="{{ STATIC_URL }}vendor/jquery/js/jquery-3.2.1.slim.js"></script>
-    <script src="{{ STATIC_URL }}vendor/bootstrap/js/tether.min.js"></script>
-    <script src="{{ STATIC_URL }}vendor/tether/js/bootstrap.min.js"></script>
+  <!-- JS -->
+  {#  https://getbootstrap.com/docs/4.1/getting-started/introduction/#js#}
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>  <!-- CSS -->
 
-  {% else %}
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <script src="{% static '/vendor/theme-dashboard/v4/dist/toolkit.min.js' %}"></script>
 
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"
-          integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4" crossorigin="anonymous"></script>
+  <!-- CSS -->
+  {#  https://getbootstrap.com/docs/4.1/getting-started/introduction/#css#}
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  {#  https://www.bootstrapcdn.com/fontawesome/#}
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-
-  {% endif %}
-
-  <link href="{{ STATIC_URL }}vendor/bootstrap-theme/compiled/toolkit-inverse.min.css" rel="stylesheet">
-  <link href="{{ STATIC_URL }}css/base.css?v=2" rel="stylesheet">
+  <link href="{% static '/vendor/theme-dashboard/v4/dist/toolkit-inverse.min.css' %}" rel="stylesheet">
+  <link href="{% static '/css/base.css' %}?v=0" rel="stylesheet">
   {% block css %}
   {% endblock css %}
 </head>
@@ -69,26 +64,39 @@
 
           <div class="dashhead-titles">
             <h6 class="dashhead-subtitle">
-              {% block content_subtitle %}IntelligentTrading{% endblock %}
+              {% block content_subtitle %}Portfolio Management by Intelligent Trading Foundation{% endblock %}
             </h6>
             <h3 class="dashhead-title">
-              {% block content_title %}&nbsp;{% endblock %}
+              {% block content_title %}Lobularia Maritima{% endblock %}
             </h3>
           </div>
 
           <div class="dashhead-toolbar">
+            <span class="dashhead-toolbar-divider hidden-xs"></span>
             {% block content_toolbar %}
               <div class="btn-group dashhead-toolbar-item">
                 {% block content_toolbar_items %}
-                  <ul class="list-inline">
-                    <li class="list-inline-item">
-                      <a href="/portfolio">Portfolio</a>
+
+                  <ul class="nav nav-bar">
+                    <li class="nav-item">
+                      {% url 'portfolio:dashboard' as url %}
+                      <a class="nav-link {% if request.path == url %}active{% endif %}" href="{{ url }}">
+                        Portfolio
+                      </a>
                     </li>
-                    <li class="list-inline-item">
-                      <a href="/portfolio/allocations">Allocations</a>
+
+                    <li class="nav-item">
+                      {% url 'portfolio:allocations' as url %}
+                      <a class="nav-link {% if request.path == url %}active{% endif %}" href="{{ url }}">
+                        Allocations
+                      </a>
                     </li>
-                    <li class="list-inline-item">
-                      <a href="/portfolio/exchange_setup">Exchange Setup</a>
+
+                    <li class="nav-item">
+                      {% url 'portfolio:exchange_setup' as url %}
+                      <a class="nav-link {% if request.path == url %}active{% endif %}" href="{{ url }}">
+                        Exchange Setup
+                      </a>
                     </li>
                   </ul>
 
@@ -114,7 +122,7 @@
   </nav>
 
   <!--Javascript Placed at the end of the document. Pages load faster. -->
-  <script src="{{ STATIC_URL }}javascript/base.js"></script>
+  <script src="{% static '/javascript/base.js' %}?v=0"></script>
   {% block javascript %}
   {% endblock javascript %}
 
