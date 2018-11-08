@@ -1,7 +1,13 @@
 import uuid
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.dispatch import receiver
+
+from apps.portfolio.services.trading import get_binance_portfolio_data
+
 User = get_user_model()
+from django.db.models.signals import post_save, pre_save
 from django.db import models
 from apps.common.behaviors import Timestampable
 
@@ -40,6 +46,11 @@ class ExchangeAccount(Timestampable, models.Model):
     # MODEL PROPERTIES
 
     # MODEL FUNCTIONS
+    def get_new_snapshot(self):
+        allocation_snapshot = AllocationSnapshot()
+        allocation_snapshot.allocation_data = get_binance_portfolio_data(self)
+
+
     def __str__(self):
         return f"{self.portfolio.user.username}_binance_account"
 
@@ -56,9 +67,10 @@ class AllocationSnapshot(models.Model):
 
     # https://docs.djangoproject.com/en/2.1/ref/contrib/postgres/fields/#querying-jsonfield
     allocation_data = JSONField(blank=False)
+    is_realized = models.BooleanField(default=False)
 
     BTC_price = models.BigIntegerField(null=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    _timestamp = models.DateTimeField(auto_now=True)
 
 
     # MODEL PROPERTIES
@@ -69,4 +81,12 @@ class AllocationSnapshot(models.Model):
 
     class Meta:
         verbose_name_plural = 'allocation_snapshots'
-        ordering = ["-timestamp"]
+        ordering = ["-_timestamp"]
+
+
+@receiver(pre_save, sender=AllocationSnapshot, dispatch_uid="update BTC_price")
+def update_BTC_price(sender, instance, **kwargs):
+    if not getattr(instance, 'BTC_price_updated', False):
+        instance.BTC_price = cache.get("current_BTC_price")
+        instance.BTC_price_updated = True
+        instance.save()
