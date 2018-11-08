@@ -7,9 +7,3 @@ class ExchangeAccountForm(ModelForm):
     class Meta:
         model = ExchangeAccount
         fields = ['api_key', 'secret_key']
-
-
-class AllocationForm(ModelForm):
-    class Meta:
-        model = AllocationSnapshot
-        fields = ['allocation_data']

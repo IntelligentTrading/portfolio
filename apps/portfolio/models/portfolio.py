@@ -24,6 +24,12 @@ class Portfolio(Timestampable, models.Model):
 
 
     # MODEL FUNCTIONS
+    def get_new_snapshot(self):
+        allocation_snapshot = AllocationSnapshot()
+        if self.exchange_accounts.first():
+            allocation_snapshot.realized_allocation = get_binance_portfolio_data(self.exchange_accounts.first())
+        return allocation_snapshot
+
     def __str__(self):
         return f"{self.user.username}_portfolio"
 
@@ -41,15 +47,11 @@ class ExchangeAccount(Timestampable, models.Model):
     # exchange = models.SmallIntegerField(choices=EXCHANGE_CHOICES, null=False)
     api_key = models.CharField(max_length=64, null=True, blank=True)
     secret_key = models.CharField(max_length=64, null=True, blank=True)
-
+    is_active = models.BooleanField(default=True)
 
     # MODEL PROPERTIES
 
     # MODEL FUNCTIONS
-    def get_new_snapshot(self):
-        allocation_snapshot = AllocationSnapshot()
-        allocation_snapshot.allocation_data = get_binance_portfolio_data(self)
-
 
     def __str__(self):
         return f"{self.portfolio.user.username}_binance_account"
@@ -66,7 +68,8 @@ class AllocationSnapshot(models.Model):
     )
 
     # https://docs.djangoproject.com/en/2.1/ref/contrib/postgres/fields/#querying-jsonfield
-    allocation_data = JSONField(blank=False)
+    target_allocation = JSONField(default=dict)
+    realized_allocation = JSONField(default=dict)
     is_realized = models.BooleanField(default=False)
 
     BTC_price = models.BigIntegerField(null=True)
