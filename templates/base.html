@@ -53,11 +53,11 @@
   <div class="container-fluid mb-5">
     <div class="row">
 
-{#      <div class="col-md-3 sidebar">#}
-{#        {% block navigation %}#}
-{#          {% include 'navigation.html' %}#}
-{#        {% endblock navigation %}#}
-{#      </div>#}
+
+{#      {% block navigation %}#}
+{#        {% include 'navigation.html' %}#}
+{#      {% endblock navigation %}#}
+
 
       <div class="col-md-12 content" style="padding-top: 2.1rem;">
 
@@ -79,7 +79,20 @@
           <div class="dashhead-toolbar">
             {% block content_toolbar %}
               <div class="btn-group dashhead-toolbar-item">
-                {% block content_toolbar_items %}{% endblock %}
+                {% block content_toolbar_items %}
+                  <ul class="list-inline">
+                    <li class="list-inline-item">
+                      <a href="/portfolio">Portfolio</a>
+                    </li>
+                    <li class="list-inline-item">
+                      <a href="/portfolio/allocations">Allocations</a>
+                    </li>
+                    <li class="list-inline-item">
+                      <a href="/portfolio/exchange_setup">Exchange Setup</a>
+                    </li>
+                  </ul>
+
+                {% endblock %}
               </div>
             {% endblock content_toolbar %}
           </div>
