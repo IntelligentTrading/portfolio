@@ -16,6 +16,7 @@ class Portfolio(Timestampable, models.Model):
 
     # MODEL PROPERTIES
 
+
     # MODEL FUNCTIONS
     def __str__(self):
         return f"{self.user.username}_portfolio"
@@ -68,3 +69,4 @@ class AllocationSnapshot(models.Model):
 
     class Meta:
         verbose_name_plural = 'allocation_snapshots'
+        ordering = ["-timestamp"]

@@ -72,12 +72,14 @@
           </div>
 
           <div class="dashhead-toolbar">
-            <span class="dashhead-toolbar-divider hidden-xs"></span>
+
+{#            <span class="dashhead-toolbar-divider hidden-xs"></span>#}
+
             {% block content_toolbar %}
               <div class="btn-group dashhead-toolbar-item">
                 {% block content_toolbar_items %}
 
-                  <ul class="nav nav-bar">
+                  <ul class="nav nav-bordered">
                     <li class="nav-item">
                       {% url 'portfolio:dashboard' as url %}
                       <a class="nav-link {% if request.path == url %}active{% endif %}" href="{{ url }}">
