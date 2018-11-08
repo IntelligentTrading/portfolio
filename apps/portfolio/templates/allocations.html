@@ -13,11 +13,14 @@
 
   BTC Value: {{ allocation_snapshot.BTC_price }}
 
-  <h1>Current Portfolio</h1>
+  <h1>Portfolio Allocations</h1>
+
+  {{ allocation_snapshot.realized_allocation }}
+  {{ allocation_snapshot.target_allocation }}
 
   <ul>
-    {% for coin_allocation in allocation_snapshot.allocation_data %}
-      {% with coin=coin_allocation.0 portion=coin_allocation.1 %}
+    {% for coin, portion in allocation_snapshot.realized_allocation.items %}
+
 
       <li>
         {% widthratio portion 1 100 %}%
@@ -27,5 +30,7 @@
 
     {% endfor %}
   </ul>
+
+  {{ allocation_form }}
 
 {% endblock content %}

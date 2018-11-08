@@ -8,6 +8,9 @@ from django.core.cache import cache
 from apps.portfolio.models import AllocationSnapshot
 from settings import ITF_CORE_API_URL, ITF_CORE_API_KEY
 
+(SHORT_HORIZON, MEDIUM_HORIZON, LONG_HORIZON) = list(range(3))
+(POLONIEX, BITTREX, BINANCE, BITFINEX, KUCOIN, GDAX, HITBTC) = list(range(7))
+
 
 def get_BTC_price():
     BTC_price = int(cache.get("current_BTC_price"))
@@ -26,13 +29,11 @@ def get_BTC_price():
     return BTC_price
 
 
-def get_allocations_from_signals():
-    now_datetime = datetime.now()
+def get_allocations_from_signals(horizon="all", at_datetime=None):
+    now_datetime = at_datetime or datetime.now()
     BTC_minimum_reserve = 0.0090
     BNB_minimum_reserve = 0.0010
 
-    (SHORT_HORIZON, MEDIUM_HORIZON, LONG_HORIZON) = list(range(3))
-    (POLONIEX, BITTREX, BINANCE, BITFINEX, KUCOIN, GDAX, HITBTC) = list(range(7))
 
     horizon_periods = {
         SHORT_HORIZON: 1,
@@ -54,7 +55,14 @@ def get_allocations_from_signals():
 
     signals = []
     source = BINANCE
-    for horizon in [MEDIUM_HORIZON, ]:  # SHORT_HORIZON, MEDIUM_HORIZON, LONG_HORIZON
+
+    if horizon == "all":
+        horizons = [SHORT_HORIZON, MEDIUM_HORIZON, LONG_HORIZON]
+    else:
+        assert horizon in [SHORT_HORIZON, MEDIUM_HORIZON, LONG_HORIZON]
+        horizons = [horizon,]
+
+    for horizon in horizons:
         search_startdate = datetime.now() - timedelta(hours=(
                 horizon_periods[horizon] * horizon_life_spans[horizon]
         ))
