@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View
@@ -22,9 +24,26 @@ class AllocationsView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
+        if not len(self.allocation_object.target_allocation):
+            self.allocation_object.target_allocation = self.allocation_object.realized_allocation
+
+        target_allocation_expanded = [
+            {"coin": alloc["coin"], "portion": alloc["portion"]*100 // 0.01 / 100}
+            for alloc in self.allocation_object.target_allocation
+        ]
+
+        target_coin_list = [alloc['coin'] for alloc in target_allocation_expanded]
+
+        for coin in binance_coins:
+            if coin not in target_coin_list:
+                target_allocation_expanded.append({
+                    "coin": coin,
+                    "portion": 0.0
+                })
 
         context = {
             "allocation_object": self.allocation_object,
+            "target_allocation_expanded": target_allocation_expanded,
             "binance_coins": binance_coins
         }
 

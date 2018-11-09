@@ -10,42 +10,67 @@
 {#{% endblock content_title %}#}
 
 {% block content %}
+<div class="container">
 
-  BTC Value: {{ allocation_object.BTC_value }}
-  USD Value: {{ allocation_object.USD_value|default_if_none:"N/A" }}
-
-  <h1>Portfolio Allocations</h1>
-
-  {{ allocation_object.realized_allocation }}
-  {{ allocation_object.target_allocation }}
-
-  <ul>
-    {% for allocation in allocation_object.realized_allocation %}
-
-      <li>
-        {% widthratio allocation.portion 1 100 %}%
-        |
-        {{ allocation.coin }}
-      </li>
-
-    {% endfor %}
-  </ul>
-
-  {{ binance_coins }}
-
-  {% for coin in binance_coins %}
-
-    <div id="coin-{{ coin }}">
-      {{ coin }}
-      <input type="number">
-
+  <div class="row">
+    <div class="col-sm-6">
+      <h1>
+        Portfolio Allocations
+      </h1>
     </div>
+    <div class="col-sm-6">
+      <ul class="list-unstyled">
+        <li class="text-right">
+          <h4>{{ allocation_object.BTC_value }} BTC</h4>
+        </li>
+        <li class="text-right">
+          <h4>${{ allocation_object.USD_value|default_if_none:"[N/A]" }} USD</h4>
+        </li>
+      </ul>
+    </div>
+  </div>
 
-  {% endfor %}
 
+  <div class="card-deck mb-3">
 
+    {% for target_alloc in target_allocation_expanded|dictsort:"portion" reversed %}
 
+      <div class="card text-center border-secondary bg-transparent">
+        <div class="card-header">
+          {{ target_alloc.coin }}
+        </div>
+        <div class="card-body my-0 py-0">
+          <p class="card-text my-0 py-0">
 
+            <form class="form-inline justify-content-center my-0">
 
+              <div class="input-group my-0">
 
+                <input type="number" class="form-control" style="max-width:6em;"
+                       id="{{ target_alloc.coin }}_portion" name="{{ target_alloc.coin }}_portion"
+                       value="{{ target_alloc.portion }}" placeholder="0.0" maxlength="5">
+
+                <div class="input-group-append">
+                  <div class="input-group-text text-white">%</div>
+  {#                  <button class="btn btn-outline-secondary" type="button">#}
+  {#                    <i class="fa fa-chevron-up"></i>#}
+  {#                  </button>#}
+  {#                  <button class="btn btn-outline-secondary" type="button">#}
+  {#                    <i class="fa fa-chevron-down"></i>#}
+  {#                  </button>#}
+                </div>
+              </div>
+
+            </form>
+          </p>
+        </div>
+      </div>
+      {% if forloop.counter|divisibleby:6 %}
+        </div><div class="card-deck mb-3">
+      {% endif %}
+    {% endfor %}
+
+  </div>
+
+</div>
 {% endblock content %}

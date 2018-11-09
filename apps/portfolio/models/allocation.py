@@ -31,7 +31,7 @@ class Allocation(models.Model):
     @property
     def USD_value(self):
         if self.BTC_price and self.BTC_value:
-            return self.BTC_price * self.BTC_value / 10**8
+            return self.BTC_price * self.BTC_value / 10**8 // 0.01 / 100
         else:
             return None
 
