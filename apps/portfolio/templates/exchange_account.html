@@ -25,7 +25,7 @@
       <label for="{{ form.api_key.id_for_label }}">API Key</label>
       <input type="text" class="form-control"
              id="{{ form.api_key.id }}" name="{{ form.api_key.html_name }}"
-             value="{{ form.api_key.value }}" placeholder="paste key here">
+             value="{{ form.api_key.value|default:"" }}" placeholder="paste key here">
       <small id="{{ form.api_key.id_for_label }}-help" class="form-text text-muted">
         You can find this in your Binance API key settings.
       </small>
@@ -35,7 +35,7 @@
       <label for="{{ form.secret_key.id_for_label }}">Secret Key</label>
       <input type="text" class="form-control"
              id="{{ form.secret_key.id }}" name="{{ form.secret_key.html_name }}"
-             value="{{ form.secret_key.value }}" placeholder="paste key here">
+             value="{{ form.secret_key.value|default:"" }}" placeholder="paste key here">
 
     </div>
 
