@@ -58,7 +58,7 @@ class AllocationsView(View):
             "binance_coins": binance_coins
         }
 
-        return render(request, 'allocations.html', context)
+        return render(request, 'allocation.html', context)
 
 
 def merge_allocations(base_allocation, insert_allocation, key):

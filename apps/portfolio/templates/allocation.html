@@ -127,3 +127,8 @@
 
 </div>
 {% endblock content %}
+
+{% load static %}
+{% block javascript %}
+  <script src="{% static '/javascript/allocation.js' %}"></script>
+{% endblock javascript %}

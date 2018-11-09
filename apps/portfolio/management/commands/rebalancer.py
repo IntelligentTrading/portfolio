@@ -11,7 +11,7 @@ from django.core.management.base import BaseCommand
 from apps.portfolio.models import Portfolio
 from apps.portfolio.services.signals import get_allocations_from_signals, SHORT_HORIZON, MEDIUM_HORIZON, LONG_HORIZON
 from apps.portfolio.services.trading import set_binance_portfolio
-from apps.portfolio.views.allocations import merge_allocations
+from apps.portfolio.views.allocation import merge_allocations
 
 logger = logging.getLogger(__name__)
 
