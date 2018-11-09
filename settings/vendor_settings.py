@@ -92,3 +92,6 @@ CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379') # if e
 
 ITF_TRADING_API_URL = os.environ.get('ITF_TRADING_API_URL', 'abc123')
 ITF_TRADING_API_KEY = os.environ.get('ITF_TRADING_API_KEY', 'abc123')
+
+ITF_CORE_API_URL = os.environ.get('ITF_CORE_API_URL', 'abc123')
+ITF_CORE_API_KEY = os.environ.get('ITF_CORE_API_KEY', 'abc123')
