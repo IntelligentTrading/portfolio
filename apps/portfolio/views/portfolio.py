@@ -11,8 +11,10 @@ from apps.portfolio.services.trading import get_binance_portfolio_data
 class PortfolioView(View):
     def dispatch(self, request, *args, **kwargs):
 
-        if not Portfolio.objects.filter(user=request.user):
+        if not Portfolio.objects.filter(user=request.user).exists():
             self.portfolio = Portfolio.objects.create(user=request.user)
+        else:
+            self.portfolio = request.user.portfolio
 
         self.exchange_account = self.portfolio.exchange_accounts.first()
 
@@ -21,10 +23,11 @@ class PortfolioView(View):
             redirect("portfolio:exchange_setup")
         elif not self.portfolio.allocations.first():
             self.allocation_object = self.portfolio.get_new_allocation_object()
+            self.allocation_object.save()
         else:
             self.allocation_object = self.portfolio.allocations.first()
 
-        if self.allocation_object.timestamp < (datetime.now() - timedelta(minutes=30)):
+        if self.allocation_object.is_over_20min_old:
             self.allocation_object = self.portfolio.get_new_allocation_object()
 
         return super().dispatch(request, *args, **kwargs)

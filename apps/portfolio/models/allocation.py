@@ -1,3 +1,5 @@
+from datetime import timedelta, datetime
+
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.core.cache import cache
@@ -24,6 +26,9 @@ class Allocation(models.Model):
 
 
     # MODEL PROPERTIES
+    @property
+    def is_over_20min_old(self):
+        return bool(self._timestamp < (datetime.now() - timedelta(minutes=30)))
 
     # MODEL FUNCTIONS
     def __str__(self):

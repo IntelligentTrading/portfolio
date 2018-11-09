@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib.auth import get_user_model
 
+from apps.portfolio.models import Allocation
 from apps.portfolio.services.trading import get_binance_portfolio_data
 
 User = get_user_model()
@@ -20,15 +21,15 @@ class Portfolio(Timestampable, models.Model):
     # MODEL PROPERTIES
     @property
     def target_allocation(self):
-        return self.allocations.order_by("-timestamp").first().target_allocation
+        return self.allocations.first().target_allocation
 
     @property
     def realized_allocation(self):
-        return self.allocations.filter(is_realized=True).order_by("-timestamp").first.realized_allocation
+        return self.allocations.filter(is_realized=True).first.realized_allocation
 
     # MODEL FUNCTIONS
     def get_new_allocation_object(self):
-        allocation_object = Allocation()
+        allocation_object = Allocation(portfolio=self)
         if self.exchange_accounts.first():
             allocation_object.realized_allocation = get_binance_portfolio_data(self.exchange_accounts.first())
         return allocation_object
