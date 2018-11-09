@@ -11,20 +11,55 @@
 
 {% block content %}
 
-  BTC Value: {{BTC_value}}
+<div class="container">
 
-  <h1>Current Portfolio</h1>
 
-  <ul>
-    {% for allocation in allocations %}
+  <div class="row">
+    <div class="col-sm-6">
+      <h1>
+        Current Portfolio
+      </h1>
+    </div>
+    <div class="col-sm-6">
+      <ul class="list-unstyled">
+        <li class="text-right">
+          <h4>{{ allocation_object.BTC_value }} BTC</h4>
+        </li>
+        <li class="text-right">
+          <h4>${{ allocation_object.USD_value|default_if_none:"[N/A]" }} USD</h4>
+        </li>
+      </ul>
+    </div>
+  </div>
 
-      <li>
-        {% widthratio allocation.portion 1 100 %}%
-        |
-        {{allocation.coin}}
-      </li>
 
-    {% endfor %}
-  </ul>
+  {% for allocation in allocation_object.realized_allocation|dictsort:"portion" reversed %}
+    {% if allocation.portion >= 0.01 %}
+      <div class="row">
+
+        <div class="col-sm-1">
+          {{allocation.coin}}
+        </div>
+
+        <div class="col-sm-11">
+          <div class="progress">
+            {% widthratio allocation.portion 1 95 as portion_percent %}
+            <div class="progress-bar" role="progressbar"
+                 style="width: {{ portion_percent|add:5 }}%"
+                 aria-valuenow="{{ portion_percent|add:5 }}"
+                 aria-valuemin="0"
+                 aria-valuemax="100"
+            >
+              {{ portion_percent }}%
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-1"></div>
+
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
 
 {% endblock content %}
