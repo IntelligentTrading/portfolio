@@ -68,5 +68,6 @@ uhashring==1.1
 urllib3==1.24
 vine==1.1.4
 waitress==1.1.0
+whitenoise==4.1
 wcwidth==0.1.7
 yarl==1.2.6
