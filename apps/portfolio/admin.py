@@ -5,17 +5,17 @@ from django.contrib import admin
 
 from django.contrib import admin
 
-from apps.portfolio.models.portfolio import Portfolio, ExchangeAccount, AllocationSnapshot
+from apps.portfolio.models import portfolio, exchange_account, allocation
 
 
-@admin.register(Portfolio)
+@admin.register(portfolio.Portfolio)
 class PortfolioAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(ExchangeAccount)
+@admin.register(exchange_account.ExchangeAccount)
 class ExchangeAccountAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(AllocationSnapshot)
-class AllocationSnapshotAdmin(admin.ModelAdmin):
+@admin.register(allocation.Allocation)
+class AllocationAdmin(admin.ModelAdmin):
     pass

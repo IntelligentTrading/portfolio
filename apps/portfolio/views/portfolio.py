@@ -19,21 +19,21 @@ class PortfolioView(View):
         if not self.exchange_account:
             messages.warning("Please setup your exchange details first.")
             redirect("portfolio:exchange_setup")
-        elif not self.portfolio.allocation_snapshots.first():
-            self.allocation_snapshot = self.portfolio.get_new_snapshot()
+        elif not self.portfolio.allocations.first():
+            self.allocation_object = self.portfolio.get_new_allocation_object()
         else:
-            self.allocation_snapshot = self.portfolio.allocation_snapshots.first()
+            self.allocation_object = self.portfolio.allocations.first()
 
-        if self.allocation_snapshot.timestamp < (datetime.now() - timedelta(minutes=30)):
-            self.allocation_snapshot = self.portfolio.get_new_snapshot()
+        if self.allocation_object.timestamp < (datetime.now() - timedelta(minutes=30)):
+            self.allocation_object = self.portfolio.get_new_allocation_object()
 
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
 
         binance_data = get_binance_portfolio_data(self.exchange_account)
-        # self.allocation_snapshot.realized_allocation = binance_data["allocations"]
-        # self.allocation_snapshot.save()
+        # self.allocation_object.realized_allocation = binance_data["allocations"]
+        # self.allocation_object.save()
 
         context = {
             "portfolio": self.portfolio,

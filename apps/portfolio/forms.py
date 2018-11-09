@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 
-from apps.portfolio.models import ExchangeAccount, AllocationSnapshot
+from apps.portfolio.models import ExchangeAccount, Allocation
 
 
 class ExchangeAccountForm(ModelForm):

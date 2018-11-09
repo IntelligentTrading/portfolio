@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 
 from apps.portfolio.forms import ExchangeAccountForm
-from apps.portfolio.models.portfolio import ExchangeAccount
+from apps.portfolio.models.exchange_account import ExchangeAccount
 
 
 class ExchangeSetupView(View):

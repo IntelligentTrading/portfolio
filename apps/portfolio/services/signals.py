@@ -5,7 +5,7 @@ import requests
 from datetime import datetime, timedelta
 from django.core.cache import cache
 
-from apps.portfolio.models import AllocationSnapshot
+from apps.portfolio.models import Allocation
 from settings import ITF_CORE_API_URL, ITF_CORE_API_KEY
 
 (SHORT_HORIZON, MEDIUM_HORIZON, LONG_HORIZON) = list(range(3))
@@ -24,7 +24,7 @@ def get_BTC_price():
             cache.set("current_BTC_price", BTC_price, 60 * 10)
         except:
             # last resort, steal from the most recent known one
-            BTC_price = AllocationSnapshot.objects.first().BTC_price
+            BTC_price = Allocation.objects.first().BTC_price
 
     return BTC_price
 

@@ -11,15 +11,15 @@
 
 {% block content %}
 
-  BTC Value: {{ allocation_snapshot.BTC_price }}
+  BTC Value: {{ allocation_object.BTC_price }}
 
   <h1>Portfolio Allocations</h1>
 
-  {{ allocation_snapshot.realized_allocation }}
-  {{ allocation_snapshot.target_allocation }}
+  {{ allocation_object.realized_allocation }}
+  {{ allocation_object.target_allocation }}
 
   <ul>
-    {% for coin, portion in allocation_snapshot.realized_allocation.items %}
+    {% for coin, portion in allocation_object.realized_allocation.items %}
 
 
       <li>
