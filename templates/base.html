@@ -56,10 +56,6 @@
 
       <div class="col-md-12 content" style="padding-top: 2.1rem;">
 
-        {% block messages %}
-          {% include 'messages.html' %}
-        {% endblock messages %}
-
         <div class="dashhead">
 
           <div class="dashhead-titles">
@@ -108,6 +104,10 @@
           </div>
         </div>
         <hr class="visible-xs mt-3">
+
+        {% block messages %}
+          {% include 'messages.html' %}
+        {% endblock messages %}
 
         {% block content %}
           <p>Hello World</p>

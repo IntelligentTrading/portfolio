@@ -13,7 +13,7 @@ class AllocationsView(View):
 
         if not self.allocation_object:
             if not request.user.portfolio.exchange_accounts.first():
-                messages.warning("Please setup your exchange details first.")
+                messages.warning(request, "Please setup your exchange details first.")
                 return redirect("portfolio:exchange_setup")
             else:
                 self.allocation_object = self.portfolio.get_new_allocation_object()

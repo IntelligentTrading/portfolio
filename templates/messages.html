@@ -1,13 +1,14 @@
-<div id='messages' class=''>
+<div id='messages' class='container'>
   {% for message in messages %}
 
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+    <div class="alert alert-light alert-dismissible fade show"
          role="alert">
+
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        &times;
+        <span aria-hidden="true">&times;</span>
       </button>
 
-      <strong>{{ message.tags|title }}</strong>:
+      <strong>{{ message.tags|title }}</strong>
       {{ message|safe }}
 
     </div>
