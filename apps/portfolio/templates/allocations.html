@@ -30,8 +30,67 @@
     </div>
   </div>
 
+  <div class="row">
+    <div class="col">
+      <h4>
+        Total:
+        <span id="allocation_total_percent">
+          100.00
+        </span>
+        %
+      </h4>
+    </div>
 
-  <div class="card-deck mb-3">
+    <div class="col text-right">
+      <button type="button" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+
+  <div class="hr-divider">
+    <h3 class="hr-divider-content hr-divider-heading">
+      ITF Packs
+    </h3>
+  </div>
+
+  <div class="card-deck my-3">
+
+    {% for target_alloc in ITF_target_allocations %}
+
+      <div class="card text-center border-primary bg-transparent">
+        <div class="card-header">
+          {{ target_alloc.coin }}
+        </div>
+        <div class="card-body">
+
+
+            <form class="form-inline justify-content-center my-0">
+
+              <div class="input-group my-0">
+
+                <input type="number" class="form-control p-1 text-center" style="max-width:6em;"
+                       id="{{ target_alloc.coin }}_portion" name="{{ target_alloc.coin }}_portion"
+                       value="{{ target_alloc.portion }}" placeholder="0.0" maxlength="5">
+
+                <div class="input-group-append">
+                  <div class="input-group-text text-white">%</div>
+                </div>
+              </div>
+
+            </form>
+
+        </div>
+      </div>
+    {% endfor %}
+
+  </div>
+
+  <div class="hr-divider">
+    <h3 class="hr-divider-content hr-divider-heading">
+      Binance Coins
+    </h3>
+  </div>
+
+  <div class="card-deck my-3">
 
     {% for target_alloc in target_allocation_expanded|dictsort:"portion" reversed %}
 
@@ -39,34 +98,28 @@
         <div class="card-header">
           {{ target_alloc.coin }}
         </div>
-        <div class="card-body my-0 py-0">
-          <p class="card-text my-0 py-0">
+        <div class="card-body m-1 p-1">
+
 
             <form class="form-inline justify-content-center my-0">
 
               <div class="input-group my-0">
 
-                <input type="number" class="form-control" style="max-width:6em;"
+                <input type="number" class="form-control p-1 text-center" style="max-width:6em;"
                        id="{{ target_alloc.coin }}_portion" name="{{ target_alloc.coin }}_portion"
                        value="{{ target_alloc.portion }}" placeholder="0.0" maxlength="5">
 
                 <div class="input-group-append">
                   <div class="input-group-text text-white">%</div>
-  {#                  <button class="btn btn-outline-secondary" type="button">#}
-  {#                    <i class="fa fa-chevron-up"></i>#}
-  {#                  </button>#}
-  {#                  <button class="btn btn-outline-secondary" type="button">#}
-  {#                    <i class="fa fa-chevron-down"></i>#}
-  {#                  </button>#}
                 </div>
               </div>
 
             </form>
-          </p>
+
         </div>
       </div>
       {% if forloop.counter|divisibleby:6 %}
-        </div><div class="card-deck mb-3">
+        </div><div class="card-deck my-3">
       {% endif %}
     {% endfor %}
 

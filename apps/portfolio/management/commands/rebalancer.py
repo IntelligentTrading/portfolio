@@ -29,24 +29,25 @@ def balance_portfolios():
     # today = datetime.today()
     # query_time = datetime(today.year, today.month, today.day, today.hour, 20)
 
-    ITF_GROUP_HORIZONS = {"ITF1HR": SHORT_HORIZON, "ITF6HR": MEDIUM_HORIZON, "ITF24HR": LONG_HORIZON}
+    ITF_PACK_HORIZONS = {"ITF1HR": SHORT_HORIZON, "ITF6HR": MEDIUM_HORIZON, "ITF24HR": LONG_HORIZON}
 
     ITF_binance_allocations = {
         itf_group: get_allocations_from_signals(horizon=horizon, at_datetime=datetime.now())
-        for itf_group, horizon in ITF_GROUP_HORIZONS.items()
+        for itf_group, horizon in ITF_PACK_HORIZONS.items()
     }
     for portfolio in Portfolio.objects.all():
         if not portfolio.exchange_accounts.first().is_active:
             continue
         portfolio_allocations = portfolio.target_allocation
-        for itf_group, horizon in ITF_GROUP_HORIZONS.items():
-            if itf_group in portfolio_allocations and portfolio_allocations[itf_group] > 0.005:
+        for itf_pack, horizon in ITF_PACK_HORIZONS.items():
+            if itf_pack in portfolio_allocations and portfolio_allocations[itf_pack] > 0.005:
                 portfolio_allocations = merge_allocations(
                     base_allocation=portfolio_allocations,
-                    insert_allocation=ITF_binance_allocations[itf_group],
-                    key=itf_group
+                    insert_allocation=ITF_binance_allocations[itf_pack],
+                    key=itf_pack
                 )
-            del portfolio_allocations[itf_group]
+        if itf_pack in portfolio_allocations:
+            del portfolio_allocations[itf_pack]
 
         for coin, portion in deepcopy(portfolio_allocations):
             portfolio_allocations[coin] = (portion // 0.0001) * 10000

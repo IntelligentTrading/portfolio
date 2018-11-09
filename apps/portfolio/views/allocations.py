@@ -1,9 +1,8 @@
-from copy import deepcopy
-
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View
 
+from apps.portfolio.models.allocation import ITF_PACKS
 from apps.portfolio.services.binance import binance_coins
 
 
@@ -41,9 +40,21 @@ class AllocationsView(View):
                     "portion": 0.0
                 })
 
+        ITF_target_allocations = []
+        for itf_pack in ITF_PACKS:
+
+            itf_pack_alloc = next(
+                (a for a in target_allocation_expanded if a.get('coin') == itf_pack),
+                {'coin': itf_pack, 'portion': 0.0}
+            )
+            ITF_target_allocations.append(itf_pack_alloc)
+
+        target_allocation_expanded[:] = [d for d in target_allocation_expanded if d.get('coin') not in ITF_PACKS]
+
         context = {
             "allocation_object": self.allocation_object,
             "target_allocation_expanded": target_allocation_expanded,
+            "ITF_target_allocations": ITF_target_allocations,
             "binance_coins": binance_coins
         }
 

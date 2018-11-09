@@ -11,6 +11,10 @@ from django.db.models.signals import pre_save
 from django.db import models
 
 
+ITF1HR, ITF6HR, ITF24HR = "ITF1HR", "ITF6HR", "ITF24HR"
+ITFPRIV = "ITFPRIV"
+ITF_PACKS = [ITF1HR, ITF6HR, ITF24HR, ITFPRIV,]
+
 class Allocation(models.Model):
 
     portfolio = models.ForeignKey(
