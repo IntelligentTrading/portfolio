@@ -7,7 +7,6 @@ from apps.portfolio.models.portfolio import Portfolio
 
 class PortfolioView(View):
     def dispatch(self, request, *args, **kwargs):
-        messages.warning(request, "Please setup your exchange details first.")
 
         if not hasattr(request.user, "portfolio"):
             Portfolio.objects.create(user=request.user)
@@ -16,7 +15,7 @@ class PortfolioView(View):
 
         if not self.portfolio.exchange_accounts.exists():
             messages.warning(request, "Please setup your exchange details first.")
-            return redirect("portfolio:exchange_setup")
+            return redirect("portfolio:exchange_account")
 
         if not self.portfolio.allocations.exists() or self.portfolio.allocations.first().is_over_20min_old:
             self.allocation_object = self.portfolio.get_new_allocation_object()

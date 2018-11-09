@@ -14,7 +14,7 @@ class AllocationsView(View):
         if not self.allocation_object:
             if not request.user.portfolio.exchange_accounts.first():
                 messages.warning(request, "Please setup your exchange details first.")
-                return redirect("portfolio:exchange_setup")
+                return redirect("portfolio:exchange_account")
             else:
                 self.allocation_object = self.portfolio.get_new_allocation_object()
         elif self.allocation_object.is_over_20min_old:

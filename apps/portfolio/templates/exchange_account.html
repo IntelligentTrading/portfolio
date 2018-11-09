@@ -10,11 +10,12 @@
 {#{% endblock content_title %}#}
 
 {% block content %}
+<div class="container">
 
   <h1>Binance Setup</h1>
 
 
-  <form action="" method="post">{% with form=exchange_setup_form %}{% csrf_token %}
+  <form action="" method="post">{% with form=exchange_account_form %}{% csrf_token %}
 
     {% for hidden_field in form.hidden_fields %}
       {{ hidden_field }}
@@ -38,8 +39,9 @@
 
     </div>
 
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary">Save</button>
 
   {% endwith %}</form>
 
+</div>
 {% endblock content %}

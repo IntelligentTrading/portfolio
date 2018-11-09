@@ -7,7 +7,7 @@ from apps.portfolio.forms import ExchangeAccountForm
 from apps.portfolio.models.exchange_account import ExchangeAccount
 
 
-class ExchangeSetupView(View):
+class ExchangeAccountView(View):
     def dispatch(self, request, *args, **kwargs):
         self.exchange_account = request.user.portfolio.exchange_accounts.first()
         return super().dispatch(request, *args, **kwargs)
@@ -16,7 +16,7 @@ class ExchangeSetupView(View):
 
         context = {
             "exchange_account": self.exchange_account,
-            "exchange_setup_form": ExchangeAccountForm(instance=self.exchange_account)
+            "exchange_account_form": ExchangeAccountForm(instance=self.exchange_account)
         }
         return render(request, 'exchange_account.html', context)
 
