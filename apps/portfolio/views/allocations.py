@@ -1,11 +1,8 @@
-import logging
-from datetime import datetime, timedelta
-
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View
 
-from apps.portfolio.services.trading import get_binance_portfolio_data
+from apps.portfolio.services.binance import binance_coins
 
 
 class AllocationsView(View):
@@ -19,22 +16,19 @@ class AllocationsView(View):
                 return redirect("portfolio:exchange_setup")
             else:
                 self.allocation_object = self.portfolio.get_new_allocation_object()
-        elif self.allocation_object.timestamp < (datetime.now() - timedelta(minutes=30)):
+        elif self.allocation_object.is_over_20min_old:
             self.allocation_object = self.portfolio.get_new_allocation_object()
 
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
 
-        if not self.allocation_object.realized_allocation:
-            binance_data = get_binance_portfolio_data(self.portfolio.exchange_accounts.first())
-            self.allocation_object.realized_allocation = binance_data["allocations"]
-
         context = {
             "allocation_object": self.allocation_object,
+            "binance_coins": binance_coins
         }
 
-        return render(request, 'portfolio.html', context)
+        return render(request, 'allocations.html', context)
 
 
 def merge_allocations(base_allocation, insert_allocation, key):

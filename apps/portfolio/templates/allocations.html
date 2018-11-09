@@ -11,7 +11,8 @@
 
 {% block content %}
 
-  BTC Value: {{ allocation_object.BTC_price }}
+  BTC Value: {{ allocation_object.BTC_value }}
+  USD Value: {{ allocation_object.USD_value|default_if_none:"N/A" }}
 
   <h1>Portfolio Allocations</h1>
 
@@ -19,17 +20,32 @@
   {{ allocation_object.target_allocation }}
 
   <ul>
-    {% for coin, portion in allocation_object.realized_allocation.items %}
+    {% for allocation in allocation_object.realized_allocation %}
 
       <li>
-        {% widthratio portion 1 100 %}%
+        {% widthratio allocation.portion 1 100 %}%
         |
-        {{ coin }}
+        {{ allocation.coin }}
       </li>
 
     {% endfor %}
   </ul>
 
-  {{ allocation_form }}
+  {{ binance_coins }}
+
+  {% for coin in binance_coins %}
+
+    <div id="coin-{{ coin }}">
+      {{ coin }}
+      <input type="number">
+
+    </div>
+
+  {% endfor %}
+
+
+
+
+
 
 {% endblock content %}

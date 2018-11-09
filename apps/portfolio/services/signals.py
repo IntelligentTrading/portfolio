@@ -5,7 +5,7 @@ import requests
 from datetime import datetime, timedelta
 from django.core.cache import cache
 
-from apps.portfolio.models import Allocation
+from apps.common.utilities.multithreading import start_new_thread
 from settings import ITF_CORE_API_URL, ITF_CORE_API_KEY
 
 (SHORT_HORIZON, MEDIUM_HORIZON, LONG_HORIZON) = list(range(3))
@@ -13,9 +13,20 @@ from settings import ITF_CORE_API_URL, ITF_CORE_API_KEY
 
 
 def get_BTC_price():
-    BTC_price = int(cache.get("current_BTC_price"))
-
+    BTC_price = cache.get("current_BTC_price")
     if not BTC_price:
+        fix_missing_BTC_price_in_cache()
+        from apps.portfolio.models import Allocation
+        # last resort, steal from the most recent known one
+        BTC_price = Allocation.objects.first().BTC_price
+
+    return int(BTC_price) if BTC_price else None
+
+@start_new_thread
+def fix_missing_BTC_price_in_cache():
+    BTC_price = None
+    for i in range(3):
+        if BTC_price: continue
         url = ITF_CORE_API_URL + "v2/prices/BTC"
         r = requests.get(url, headers={"API-KEY": ITF_CORE_API_KEY})
         try:
@@ -23,11 +34,7 @@ def get_BTC_price():
             assert BTC_price > 10 ** 11
             cache.set("current_BTC_price", BTC_price, 60 * 10)
         except:
-            # last resort, steal from the most recent known one
-            BTC_price = Allocation.objects.first().BTC_price
-
-    return BTC_price
-
+            pass
 
 def get_allocations_from_signals(horizon="all", at_datetime=None):
     now_datetime = at_datetime or datetime.now()

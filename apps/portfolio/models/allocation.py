@@ -2,8 +2,9 @@ from datetime import timedelta, datetime
 
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
-from django.core.cache import cache
 from django.dispatch import receiver
+
+from apps.portfolio.services.signals import get_BTC_price
 
 User = get_user_model()
 from django.db.models.signals import pre_save
@@ -17,20 +18,29 @@ class Allocation(models.Model):
     )
 
     # https://docs.djangoproject.com/en/2.1/ref/contrib/postgres/fields/#querying-jsonfield
-    target_allocation = JSONField(default=dict)
-    realized_allocation = JSONField(default=dict)
+    target_allocation = JSONField(default=list)
+    realized_allocation = JSONField(default=list)
     is_realized = models.BooleanField(default=False)
 
+    BTC_value = models.FloatField(null=True)
     BTC_price = models.BigIntegerField(null=True)
     _timestamp = models.DateTimeField(auto_now=True)
 
 
     # MODEL PROPERTIES
     @property
+    def USD_value(self):
+        if self.BTC_price and self.BTC_value:
+            return self.BTC_price * self.BTC_value / 10**8
+        else:
+            return None
+
+    @property
     def is_over_20min_old(self):
         return bool(self._timestamp < (datetime.now() - timedelta(minutes=30)))
 
     # MODEL FUNCTIONS
+
     def __str__(self):
         return f"allocation_{self.id}"
 
@@ -42,6 +52,6 @@ class Allocation(models.Model):
 @receiver(pre_save, sender=Allocation, dispatch_uid="update BTC_price")
 def update_BTC_price(sender, instance, **kwargs):
     if not getattr(instance, 'BTC_price_updated', False):
-        instance.BTC_price = cache.get("current_BTC_price")
+        instance.BTC_price = get_BTC_price()
         instance.BTC_price_updated = True
         instance.save()

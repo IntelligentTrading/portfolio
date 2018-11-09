@@ -18,7 +18,7 @@ class ExchangeSetupView(View):
             "exchange_account": self.exchange_account,
             "exchange_setup_form": ExchangeAccountForm(instance=self.exchange_account)
         }
-        return render(request, 'exchange_setup.html', context)
+        return render(request, 'exchange_account.html', context)
 
     def post(self, request):
         if not self.exchange_account:
