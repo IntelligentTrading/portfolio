@@ -21,12 +21,18 @@ def get_binance_portfolio_data(binance_account):
         logging.debug(data)
 
     response = requests.post(api_url, json=data, headers=headers)
-
     logging.debug(response.text)
 
-    if response.status_code == 200:
-        data = response.json()
-        return data['binance']
+    # https://github.com/IntelligentTrading/trading#binance-exchange-get-portfolio-state
+    # if response.status_code == 400:
+    #     return response.json()['detail']
+    #
+    # if response.status_code == 200:
+    #     return response.json()['binance']
+
+    return (response.status_code, response.json())
+
+
 
 
 def set_binance_portfolio(binance_account, allocations):

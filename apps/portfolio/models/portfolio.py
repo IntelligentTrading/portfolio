@@ -31,17 +31,34 @@ class Portfolio(Timestampable, models.Model):
 
     # MODEL FUNCTIONS
     def get_new_allocation_object(self):
-        if not self.exchange_accounts.exists():
+
+        self.binance_account = self.exchange_accounts.first()
+
+        if not self.binance_account:
+            return None
+        if not self.binance_account.is_active:
             return None
 
-        portfolio_data = get_binance_portfolio_data(self.exchange_accounts.first())
-        return Allocation(
-            portfolio=self,
-            target_allocation=self.target_allocation,
-            realized_allocation=portfolio_data['allocations'],
-            BTC_value=portfolio_data['value'],
-            BTC_price=get_BTC_price()
-        )
+        (status, exchange_response) = get_binance_portfolio_data(self.binance_account)
+
+        if status == 200 and 'binance' in exchange_response:
+            binance_portfolio = exchange_response['binance']
+
+            return Allocation(
+                portfolio=self,
+                target_allocation=self.target_allocation,
+                realized_allocation=binance_portfolio['allocations'],
+                BTC_value=float(binance_portfolio['value']),
+                BTC_price=get_BTC_price()
+            )
+
+        elif status == 400 and 'detail' in exchange_response:
+            if "API-key" in exchange_response['detail']:
+                self.binance_account.is_active = False
+                self.binance_account.save()
+
+        return None
+
 
     def __str__(self):
         return f"{self.user.username}_portfolio"

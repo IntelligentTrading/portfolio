@@ -26,5 +26,7 @@ class ExchangeAccountView(View):
 
         self.exchange_account.api_key = request.POST.get("api_key")
         self.exchange_account.secret_key = request.POST.get("secret_key")
+        self.exchange_account.is_active = True
+        self.exchange_account.save()
 
         return redirect('portfolio:dashboard')
