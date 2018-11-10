@@ -41,8 +41,7 @@ def get_binance_portfolio_data(binance_account):
     return (response.status_code, response.json())
 
 
-
-@start_new_thread
+# @start_new_thread
 def set_portfolio(portfolio, allocation):
     binance_account = portfolio.exchange_accounts.first()
     if not binance_account:
@@ -82,7 +81,8 @@ def set_portfolio(portfolio, allocation):
         while 'retry_after' in response_data:
             try:
                 proccess_uuid = response_data['portfolio_processing_request'].strip("/api/portfolio_process/")
-                time.sleep(int(response_data['retry_after'])/1000)
+                logging.debug(f"sleeping for {response_data['retry_after']}ms...")
+                time.sleep(max([int(response_data['retry_after'])/1000/2, 5]))
                 api_url = ITF_TRADING_API_URL + "portfolio_process/" + proccess_uuid
                 response = requests.post(api_url, headers=headers,
                                          json={"api_key": ITF_TRADING_API_KEY, })
