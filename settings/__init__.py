@@ -165,8 +165,7 @@ STATIC_ROOT = os.path.join(SITE_ROOT, 'staticfiles')
 STATICFILES_DIRS = (
     os.path.join(SITE_ROOT, 'static'),
 )
-WHITENOISE_USE_FINDERS = True
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 try:
     from settings.vendor_settings import *

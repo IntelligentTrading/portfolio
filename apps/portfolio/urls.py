@@ -10,6 +10,6 @@ urlpatterns = [
 
     url(r'^$', PortfolioView.as_view(), name='dashboard'),
     url(r'^exchange_account$', ExchangeAccountView.as_view(), name='exchange_account'),
-    url(r'^allocations$', AllocationsView.as_view(), name='allocations'),
+    url(r'^allocation$', AllocationsView.as_view(), name='allocation'),
 
 ]

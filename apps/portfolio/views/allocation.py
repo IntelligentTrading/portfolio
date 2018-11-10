@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View
@@ -27,7 +29,7 @@ class AllocationsView(View):
             self.allocation_object.target_allocation = self.allocation_object.realized_allocation
 
         target_allocation_expanded = [
-            {"coin": alloc["coin"], "portion": alloc["portion"]*100 // 0.01 / 100}
+            {"coin": alloc["coin"], "portion": float(alloc["portion"])*100 // 0.01 / 100}
             for alloc in self.allocation_object.target_allocation
         ]
 
@@ -59,6 +61,42 @@ class AllocationsView(View):
         }
 
         return render(request, 'allocation.html', context)
+
+    def post(self, request):
+
+        import json
+        post_target_allocation = json.loads(request.POST.get("allocation_array"))
+        try:
+            assert isinstance(post_target_allocation, list)
+            draft_target_allocation = []
+            allocation_sum = 0
+            for alloc in post_target_allocation:
+                draft_target_allocation.append({
+                    "coin": str(alloc['coin']),
+                    "portion": float(alloc['portion'])
+                })
+                allocation_sum += float(alloc['portion'])
+            remainder = 0.9996 - allocation_sum
+
+            final_target_allocation = []
+            for alloc in draft_target_allocation:
+                if alloc['coin'] == "BTC":
+                    final_target_allocation.append({
+                        "coin": "BTC", "portion": alloc['portion']+remainder
+                    })
+                else:
+                    final_target_allocation.append(alloc)
+
+        except Exception as e:
+            messages.error(request, "Could not save allocatoins. Please try again or contact customer service.")
+
+        self.allocation_object.target_allocation = final_target_allocation
+        self.allocation_object.save()
+        messages.success(request, "Allocation saved." + (
+            f" Remainder ({remainder*100//.01/100}%) added to BTC" if remainder > 0.001 else ""
+        ))
+
+        return redirect('portfolio:allocation')
 
 
 def merge_allocations(base_allocation, insert_allocation, key):

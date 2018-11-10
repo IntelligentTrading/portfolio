@@ -35,14 +35,21 @@
       <h4>
         Total:
         <span id="allocation_total_percent">
-          100.00
+          100
         </span>
         %
+        <i class="fa fa-info-circle small" data-toggle="tooltip" data-placement="right"
+           title="The remainder will be held in BTC to support auto-balancing and minimize fees."
+        ></i>
       </h4>
     </div>
 
     <div class="col text-right">
-      <button type="button" class="btn btn-primary">Save</button>
+      <form method="post" target="">
+        {% csrf_token %}
+        <input id="allocation_array" name="allocation_array" type="hidden" value="[]">
+        <button id="save" type="submit" class="btn btn-primary">Save</button>
+      </form>
     </div>
   </div>
 
@@ -63,13 +70,14 @@
         <div class="card-body">
 
 
-            <form class="form-inline justify-content-center my-0">
+            <form class="form-inline justify-content-center my-0" onsubmit="return false">
 
               <div class="input-group my-0">
 
                 <input type="number" class="form-control p-1 text-center" style="max-width:6em;"
                        id="{{ target_alloc.coin }}_portion" name="{{ target_alloc.coin }}_portion"
-                       value="{{ target_alloc.portion }}" placeholder="0.0" maxlength="5">
+                       value="{{ target_alloc.portion }}" data-coin="{{ target_alloc.coin }}"
+                       placeholder="0.0" maxlength="5">
 
                 <div class="input-group-append">
                   <div class="input-group-text text-white">%</div>
@@ -101,13 +109,14 @@
         <div class="card-body m-1 p-1">
 
 
-            <form class="form-inline justify-content-center my-0">
+            <form class="form-inline justify-content-center my-0" onsubmit="return false">
 
               <div class="input-group my-0">
 
                 <input type="number" class="form-control p-1 text-center" style="max-width:6em;"
                        id="{{ target_alloc.coin }}_portion" name="{{ target_alloc.coin }}_portion"
-                       value="{{ target_alloc.portion }}" placeholder="0.0" maxlength="5">
+                       value="{{ target_alloc.portion }}"  data-coin="{{ target_alloc.coin }}"
+                       placeholder="0.0" maxlength="5">
 
                 <div class="input-group-append">
                   <div class="input-group-text text-white">%</div>
@@ -119,7 +128,7 @@
         </div>
       </div>
       {% if forloop.counter|divisibleby:6 %}
-        </div><div class="card-deck my-3">
+        </div><div class="card-deck my-4">
       {% endif %}
     {% endfor %}
 
