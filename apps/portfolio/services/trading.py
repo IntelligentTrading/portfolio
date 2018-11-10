@@ -60,7 +60,7 @@ def set_portfolio(portfolio, allocation):
             "api_key": binance_account.api_key,
             "secret_key": binance_account.secret_key,
             "type": "market",
-            "allocations": json.dumps(allocation),
+            "allocations": allocation,
         }
     }
 
@@ -81,9 +81,9 @@ def set_portfolio(portfolio, allocation):
         response_data = response.json()
         while 'retry_after' in response_data:
             try:
-                process_check_url = response_data['portfolio_processing_request']
+                proccess_uuid = response_data['portfolio_processing_request'].strip("/api/portfolio_process/")
                 time.sleep(int(response_data['retry_after'])/1000)
-                api_url = (ITF_TRADING_API_URL + process_check_url).replace("//", "/")
+                api_url = ITF_TRADING_API_URL + "portfolio_process/" + proccess_uuid
                 response = requests.post(api_url, headers=headers,
                                          json={"api_key": ITF_TRADING_API_KEY, })
                 response_data = response.json()

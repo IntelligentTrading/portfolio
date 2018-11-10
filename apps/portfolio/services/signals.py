@@ -151,8 +151,8 @@ def get_allocations_from_signals(horizon="all", at_datetime=None):
             allocations_dict[data["coin"]] = 0
         allocations_dict[data["coin"]] += data["portion"]
 
-    allocations_dict["BNB"] = max([BNB_minimum_reserve, allocations_dict["BNB"]])
-    allocations_dict["BTC"] = max([BTC_minimum_reserve, (0.9999 - BNB_minimum_reserve - allocations_sum + allocations_dict["BTC"])])
+    allocations_dict["BNB"] = max([BNB_minimum_reserve, allocations_dict.get("BNB", 0)])
+    allocations_dict["BTC"] = max([BTC_minimum_reserve, (0.9999 - BNB_minimum_reserve - allocations_sum + allocations_dict.get("BTC", 0))])
 
     allocations_list = [{"coin": coin, "portion": (portion // 0.0001 / 10000)} for coin, portion in allocations_dict.items()]
     logging.debug(f'Final SUM of allocations: {round(sum([a["portion"] for a in allocations_list])*100,3)}%')

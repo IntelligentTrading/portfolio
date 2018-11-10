@@ -17,12 +17,17 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Run aut-balancing'
+    help = 'Run auto-balancing of managed portfolios'
 
     def handle(self, *args, **options):
-        logger.info("Starting telegram info_bot.")
+        logger.info("Starting portfolio rebalancer.")
 
-        schedule.every(20).minutes.do(balance_portfolios)
+        while True:
+            try:
+                balance_portfolios()
+            except Exception as e:
+                logging.critical(str(e))
+            time.sleep(60)
 
 
 def balance_portfolios():
@@ -46,20 +51,23 @@ def balance_portfolios():
         if not binance_account.is_active:
             continue
 
-        target_allocation = deepcopy(portfolio.target_allocation)
-        for alloc in portfolio.target_allocation:
-            if alloc['coin'] in ITF_PACKS:
-                itf_pack = alloc['coin']
-                target_allocation = merge_allocations(
-                    base_allocation=target_allocation,
-                    insert_allocation=ITF_binance_allocations[itf_pack],
-                    key=itf_pack
-                )
+        try:
+            target_allocation = deepcopy(portfolio.target_allocation)
+            for alloc in portfolio.target_allocation:
+                if alloc['coin'] in ITF_PACKS:
+                    itf_pack = alloc['coin']
+                    target_allocation = merge_allocations(
+                        base_allocation=target_allocation,
+                        insert_allocation=ITF_binance_allocations[itf_pack],
+                        merge_coin=itf_pack
+                    )
 
-        final_target_allocation = clean_allocation(target_allocation)
+            final_target_allocation = clean_allocation(target_allocation)
 
-        processing_data = set_portfolio(portfolio, final_target_allocation)
-        portfolio.update_processing(processing_data)  # multithreaded
+            set_portfolio(portfolio, final_target_allocation)  # multithreaded
+
+        except Exception as e:
+            logging.error(str(e))
 
 
 def clean_allocation(allocation):
@@ -85,12 +93,21 @@ def clean_allocation(allocation):
 
     return clean_allocation
 
-def merge_allocations(base_allocation, insert_allocation, key):
-    portion_multiplier = float(base_allocation[key])
+def merge_allocations(base_allocation, insert_allocation, merge_coin):
 
-    for coin, portion in insert_allocation.items():
-        if coin not in base_allocation:
-            base_allocation[coin] = 0.0
-        base_allocation[coin] += portion * portion_multiplier
+    allocation_dict = {alloc['coin']: alloc['portion'] for alloc in base_allocation}
+    if merge_coin not in allocation_dict:
+        return base_allocation
 
-    return base_allocation
+    portion_multiplier = float(allocation_dict[merge_coin])
+    if portion_multiplier < 0.01:
+        return base_allocation
+
+    insert_allocation_dict = {alloc['coin']: alloc['portion'] for alloc in insert_allocation}
+
+    for coin, portion in insert_allocation_dict.items():
+        if coin not in allocation_dict:
+            allocation_dict[coin] = 0.0
+        allocation_dict[coin] += portion * portion_multiplier
+
+    return [{"coin":coin, "portion":portion} for coin, portion in allocation_dict.items() if coin != merge_coin]
