@@ -26,11 +26,14 @@ class Portfolio(Timestampable, models.Model):
     # MODEL PROPERTIES
     @property
     def target_allocation(self):
-        return self.allocations.first().target_allocation
+        allocation_object = self.allocations.first()
+        return allocation_object.target_allocation if allocation_object else {}
+
 
     @property
     def realized_allocation(self):
-        return self.allocations.filter(is_realized=True).first().realized_allocation
+        allocation_object = self.allocations.filter(is_realized=True).first()
+        return allocation_object.realized_allocation if allocation_object else {}
 
     @property
     def recently_rebalanced(self):
@@ -54,7 +57,7 @@ class Portfolio(Timestampable, models.Model):
         if status == 200 and 'binance' in exchange_response:
             binance_portfolio = exchange_response['binance']
 
-            return Allocation(
+            return Allocation.objects.create(
                 portfolio=self,
                 target_allocation=self.target_allocation,
                 realized_allocation=binance_portfolio['allocations'],
