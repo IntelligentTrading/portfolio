@@ -97,14 +97,3 @@ class AllocationsView(View):
         ))
 
         return redirect('portfolio:allocation')
-
-
-def merge_allocations(base_allocation, insert_allocation, key):
-    portion_multiplier = float(base_allocation[key])
-
-    for coin, portion in insert_allocation.items():
-        if coin not in base_allocation:
-            base_allocation[coin] = 0.0
-        base_allocation[coin] += portion * portion_multiplier
-
-    return base_allocation
