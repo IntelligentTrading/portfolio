@@ -17,9 +17,12 @@ class PortfolioView(View):
             messages.warning(request, "Please setup your exchange details first.")
             return redirect("portfolio:exchange_account")
 
-        if not self.portfolio.allocations.exists() or self.portfolio.allocations.first().is_over_20min_old:
+        if not self.portfolio.allocations.exists() or self.portfolio.allocations.first().is_old:
             self.allocation_object = self.portfolio.get_new_allocation_object()
-            self.allocation_object.save()
+            if not self.allocation_object:
+                messages.error(request, "Could not connect to the exchange. Check the API keys in connected account")
+            else:
+                self.allocation_object.save()
         else:
             self.allocation_object = self.portfolio.allocations.first()
 

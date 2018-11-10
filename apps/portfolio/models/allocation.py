@@ -40,8 +40,11 @@ class Allocation(models.Model):
             return None
 
     @property
-    def is_over_20min_old(self):
-        return bool(self._timestamp < (datetime.now() - timedelta(minutes=30)))
+    def is_old(self):
+        if self.portfolio.exchange_accounts.first().modified_at > (datetime.now() - timedelta(minutes=2)):
+            return True
+        else:
+            return bool(self._timestamp < (datetime.now() - timedelta(minutes=20)))
 
     # MODEL FUNCTIONS
 

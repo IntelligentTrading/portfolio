@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.generic import View
 
@@ -28,5 +29,6 @@ class ExchangeAccountView(View):
         self.exchange_account.secret_key = request.POST.get("secret_key")
         self.exchange_account.is_active = True
         self.exchange_account.save()
+        messages.success(request, "Exchange keys saved.")
 
         return redirect('portfolio:dashboard')

@@ -19,7 +19,7 @@ class AllocationsView(View):
                 return redirect("portfolio:exchange_account")
             else:
                 self.allocation_object = self.portfolio.get_new_allocation_object()
-        elif self.allocation_object.is_over_20min_old:
+        elif self.allocation_object.is_old:
             self.allocation_object = self.portfolio.get_new_allocation_object()
 
         return super().dispatch(request, *args, **kwargs)
