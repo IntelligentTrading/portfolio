@@ -1,6 +1,14 @@
 import json
+import time
+from copy import deepcopy
+from datetime import datetime
+
 import requests
 import logging
+
+from apps.common.utilities.multithreading import start_new_thread
+from apps.portfolio.services.binance import translate_allocs_binance_coins, reverse_translate_allocs_binance_coins
+from apps.portfolio.services.signals import get_BTC_price
 from settings import ITF_TRADING_API_URL, ITF_TRADING_API_KEY, DEBUG
 
 
@@ -34,10 +42,17 @@ def get_binance_portfolio_data(binance_account):
 
 
 
+@start_new_thread
+def set_portfolio(portfolio, allocation):
+    binance_account = portfolio.exchange_accounts.first()
+    if not binance_account:
+        return
+    if not binance_account.is_active:
+        return
 
-def set_binance_portfolio(binance_account, allocations):
-    api_url_base = ITF_TRADING_API_URL
-    api_url = api_url_base + "portfolio/"
+    allocation = translate_allocs_binance_coins(allocation)
+
+    api_url = ITF_TRADING_API_URL + "portfolio/"
     headers = {'Content-Type': 'application/json'}
     data = {
         "api_key": ITF_TRADING_API_KEY,
@@ -45,16 +60,51 @@ def set_binance_portfolio(binance_account, allocations):
             "api_key": binance_account.api_key,
             "secret_key": binance_account.secret_key,
             "type": "market",
-            "allocations": json.dumps(allocations),
+            "allocations": json.dumps(allocation),
         }
     }
 
     if DEBUG:
-        logging.debug(data)
+        data_copy = deepcopy(data)
+        del data_copy["binance"]["api_key"]
+        del data_copy["binance"]["secret_key"]
+        data_copy["binance"]["api_key"] = data_copy["binance"]["secret_key"] = "*****"
+        logging.debug(data_copy)
+        del data_copy
 
-    response = requests.put(api_url, json=data, headers=headers)
+    response = requests.put(api_url, headers=headers, json=data)
+    del data
+
     logging.debug(response.text)
 
     if response.status_code == 200:
-        data = response.json()
-        return data
+        response_data = response.json()
+        while 'retry_after' in response_data:
+            try:
+                process_check_url = response_data['portfolio_processing_request']
+                time.sleep(int(response_data['retry_after'])/1000)
+                api_url = (ITF_TRADING_API_URL + process_check_url).replace("//", "/")
+                response = requests.post(api_url, headers=headers,
+                                         json={"api_key": ITF_TRADING_API_KEY, })
+                response_data = response.json()
+            except Exception as e:
+                response_data = {'error': str(e)}
+
+        if not 'binance' in response_data:
+            logging.error("Error processing trades...\n" + json.dumps(response_data))
+            return
+
+        from apps.portfolio.models import Allocation
+        Allocation.objects.create(
+            portfolio=portfolio,
+            target_allocation=portfolio.target_allocation,
+            realized_allocation=response_data['binance']['allocations'],
+            is_realized=True,
+            BTC_value=float(response_data['binance']['value']),
+            BTC_price=get_BTC_price()
+        )
+
+        portfolio.rebalanced_at = datetime.now()
+        portfolio.save()
+
+        return
