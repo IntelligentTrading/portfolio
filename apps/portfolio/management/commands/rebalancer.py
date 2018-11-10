@@ -27,7 +27,7 @@ class Command(BaseCommand):
                 balance_portfolios()
             except Exception as e:
                 logging.critical(str(e))
-            time.sleep(60)
+            time.sleep(60*20)
 
 
 def balance_portfolios():
