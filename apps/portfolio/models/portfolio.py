@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -19,6 +20,8 @@ class Portfolio(Timestampable, models.Model):
         User, null=False, on_delete=models.CASCADE, related_name="portfolio"
     )
 
+    rebalanced_at = models.DateTimeField(null=True)
+
 
     # MODEL PROPERTIES
     @property
@@ -28,6 +31,13 @@ class Portfolio(Timestampable, models.Model):
     @property
     def realized_allocation(self):
         return self.allocations.filter(is_realized=True).first().realized_allocation
+
+    @property
+    def recently_rebalanced(self):
+        if not self.rebalanced_at:
+            return False
+        return True if self.rebalanced_at > datetime.now() - timedelta(minutes=59) else False
+
 
     # MODEL FUNCTIONS
     def get_new_allocation_object(self):
