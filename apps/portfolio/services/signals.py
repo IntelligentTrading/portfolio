@@ -18,7 +18,8 @@ def get_BTC_price():
         fix_missing_BTC_price_in_cache()
         from apps.portfolio.models import Allocation
         # last resort, steal from the most recent known one
-        BTC_price = Allocation.objects.first().BTC_price
+        allocation_object = Allocation.objects.filter(BTC_price__isnull=False).first()
+        BTC_price = allocation_object.BTC_price if allocation_object else None
 
     return int(BTC_price) if BTC_price else None
 
