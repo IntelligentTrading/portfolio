@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timedelta
 
@@ -52,7 +53,10 @@ class Portfolio(Timestampable, models.Model):
         if not self.binance_account.is_active:
             return None
 
-        (status, exchange_response) = get_binance_portfolio_data(self.binance_account)
+        response = get_binance_portfolio_data(self.binance_account)
+        logging.debug(response)
+        (status, exchange_response) = response
+
 
         if status == 200 and 'binance' in exchange_response:
             binance_portfolio = exchange_response['binance']

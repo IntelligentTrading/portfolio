@@ -81,7 +81,7 @@ def get_allocations_from_signals(horizon="all", at_datetime=None):
                 "source": source,
                 "startdate": search_startdate.strftime('%Y-%m-%dT%H:%M:%S'),
                 "page_size": 1000,
-                "resample_period": 240,
+                "resample_period": 240,  # todo: bug here (blame Karla)
             })
         signals += r.json()["results"]
 
@@ -139,7 +139,7 @@ def get_allocations_from_signals(horizon="all", at_datetime=None):
     logging.debug("New SUM of votes: " + str(votes_sum))
 
     for ticker, data in deepcopy(tickers_dict).items():
-        tickers_dict[ticker]["portion"] += (data["vote"] / votes_sum) // 0.0001 / 10000
+        tickers_dict[ticker]["portion"] += (data["vote"] / votes_sum) // 0.0001 * 0.0001
         if tickers_dict[ticker]["portion"] < 0.0010:
             del tickers_dict[ticker]
 
