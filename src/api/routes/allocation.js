@@ -11,4 +11,8 @@ router.post("/", (req, res) => {
   resolver(allocationCtrl.allocate(req.body.packs), res);
 });
 
+router.post("/check", (req, res) => {
+  resolver(allocationCtrl.checkAllocations(req.body), res);
+});
+
 module.exports = router;

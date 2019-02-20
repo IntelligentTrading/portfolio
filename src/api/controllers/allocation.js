@@ -1,5 +1,6 @@
 const allocationEngine = require("../../lib/allocation/allocation");
 const normalizer = require("../../lib/allocation/normalization");
+let portfolio = require('../../lib/portfolio/info')
 
 // retreived from settings or config or db
 const exchanges = [
@@ -7,12 +8,15 @@ const exchanges = [
   { name: "EX2", supported: ["BTC", "ETH", "OMG", "ADA", "XRP"], weight: 0.9 }
 ];
 
+
 module.exports = {
   allocate: packs => {
     let coins = normalizer.normalize(packs);
-    console.log(coins);
     let desired_allocations = allocationEngine.allocate(exchanges, coins);
     return Promise.resolve(desired_allocations);
+  },
+  checkAllocations: desired_allocations => {
+    return Promise.resolve(allocationEngine.checkCorrectness(desired_allocations, exchanges, portfolio.amount()));
   }
 };
 

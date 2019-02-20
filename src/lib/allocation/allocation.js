@@ -70,7 +70,6 @@ function allocate(exchanges, coins) {
 
 // let's set the 0.0001 BTC minimum
 function adjustTradingCurrencyAllocation(allocation) {
-  
   let free_allocation_space = 1;
   allocation.map(a => {
     free_allocation_space -= a.portion;
@@ -134,7 +133,18 @@ function checkCorrectness(desired_allocations, exchanges, AMOUNT) {
       reallocated_amount.total.portion += reallocated_amount[coin].portion;
     }
   });
-  return reallocated_amount;
+
+  let result = {
+    allocations: reallocated_amount,
+    checks: {
+      overall_range_correct:
+        reallocated_amount.total.portion >= 0.999 &&
+        reallocated_amount.total.portion <= 1,
+      trading_currency_present: reallocated_amount[TRADING_CURRENCY.id] != null
+    }
+  };
+
+  return result;
 }
 
 module.exports = {
