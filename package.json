@@ -1,0 +1,26 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "description": "ITF Portfolio Autobalancing",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "lodash": "^4.17.11",
+    "request-promise": "^4.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IntelligentTrading/portfolio.git"
+  },
+  "author": "ITF (francesco@intelligenttrading.org)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IntelligentTrading/portfolio/issues"
+  },
+  "homepage": "https://github.com/IntelligentTrading/portfolio#readme"
+}
