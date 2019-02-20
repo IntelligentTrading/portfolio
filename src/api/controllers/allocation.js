@@ -10,6 +10,7 @@ const exchanges = [
 module.exports = {
   allocate: packs => {
     let coins = normalizer.normalize(packs);
+    console.log(coins);
     let desired_allocations = allocationEngine.allocate(exchanges, coins);
     return Promise.resolve(desired_allocations);
   }
