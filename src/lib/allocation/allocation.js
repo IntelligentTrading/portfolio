@@ -1,11 +1,14 @@
-const TRADING_CURRENCY = { id: "BTC", portion: 0.01 };
+const mutil = require("../../api/util/math");
 
-function allocateExchange(coins, exchange) {
+const TRADING_CURRENCY = { coin: "BTC", portion: 0.0001 };
+const MIN_ALLOCATION = 0.0005;
+
+function allocateExchange(allocations, exchange) {
   let total_space_required = 0;
 
-  coins.forEach(item => {
-    total_space_required += exchange.supported.includes(item.id)
-      ? item.portion
+  allocations.forEach(allocation => {
+    total_space_required += exchange.supported.includes(allocation.coin)
+      ? allocation.portion
       : 0;
   });
 
@@ -13,26 +16,26 @@ function allocateExchange(coins, exchange) {
   // 1. calculate the extra space with respect to the current exchange
   // 2. remove it from the current coin, divide it by the remaining coins - 1 and add it to the same coins
 
-  for (i = 0; i < coins.length; i++) {
+  for (i = 0; i < allocations.length; i++) {
     if (
-      coins[i].overallocation > 0 &&
-      exchange.supported.includes(coins[i].id)
+      allocations[i].overallocation > 0 &&
+      exchange.supported.includes(allocations[i].coin)
     ) {
-      coins[i].portion -= coins[i].overallocation / exchange.weight;
+      allocations[i].portion -= allocations[i].overallocation / exchange.weight;
 
       let percentage_redistribution =
-        (coins[i].overallocation * exchange.weight) /
+        (allocations[i].overallocation * exchange.weight) /
         (exchange.supported.length - 1);
 
-      for (j = 0; j < coins.length; j++) {
+      for (j = 0; j < allocations.length; j++) {
         if (
-          coins[j].id !== coins[i].id &&
-          exchange.supported.includes(coins[j].id)
+          allocations[j].coin !== allocations[i].coin &&
+          exchange.supported.includes(allocations[j].coin)
         )
-          coins[j].portion += percentage_redistribution;
+          allocations[j].portion += percentage_redistribution;
       }
 
-      coins[i].overallocation = 0;
+      allocations[i].overallocation = 0;
     }
   }
 
@@ -40,13 +43,14 @@ function allocateExchange(coins, exchange) {
   let average_additional_space =
     (1 - total_space_required) / exchange.supported.length;
 
-  for (i = 0; i < coins.length; i++) {
-    let allocation_item = { ...coins[i] };
-    if (exchange.supported.includes(allocation_item.id)) {
+  for (i = 0; i < allocations.length; i++) {
+    let allocation_item = { ...allocations[i] };
+    if (exchange.supported.includes(allocation_item.coin)) {
       allocation_item.portion += average_additional_space;
       allocation_item.overallocation =
         average_additional_space * exchange.weight;
-      coins[i].overallocation = average_additional_space * exchange.weight; // I have to track it
+      allocations[i].overallocation =
+        average_additional_space * exchange.weight; // I have to track it
       allocation.push(allocation_item);
     } else allocation_item.portion = 0;
   }
@@ -58,8 +62,9 @@ function allocateExchange(coins, exchange) {
 
 function allocate(exchanges, coins) {
   let desired_allocations = [];
+  let allocable_coins = coins.filter(coin => coin.portion >= MIN_ALLOCATION);
   exchanges.forEach(exchange => {
-    let allocation = allocateExchange(coins, exchange);
+    let allocation = allocateExchange(allocable_coins, exchange);
     desired_allocations.push({
       exchange: exchange.name,
       allocations: allocation
@@ -69,39 +74,42 @@ function allocate(exchanges, coins) {
 }
 
 // let's set the 0.0001 BTC minimum
-function adjustTradingCurrencyAllocation(allocation) {
+function adjustTradingCurrencyAllocation(allocations) {
   let free_allocation_space = 1;
-  allocation.map(a => {
+  allocations.map(a => {
     free_allocation_space -= a.portion;
   });
 
   //let free_allocation_space = 1 - allocation_total;
   let initial_trading_currency_allocation = Object.assign({}, TRADING_CURRENCY);
 
-  let tradingCurrencyIndex = allocation.findIndex(
-    coin => coin.id === TRADING_CURRENCY.id
+  let tradingCurrencyIndex = allocations.findIndex(
+    allocation => allocation.coin === TRADING_CURRENCY.coin
   );
 
   // BTC has not been allocated and there's enough space to just push it
   if (tradingCurrencyIndex < 0) {
     if (free_allocation_space < initial_trading_currency_allocation.portion) {
-      allocation.sort((c1, c2) => c2.portion - c1.portion);
-      allocation[0].portion -= Math.fround(
-        initial_trading_currency_allocation.portion - free_allocation_space
+      allocations.sort((a1, a2) => a2.portion - a1.portion);
+      allocations[0].portion -= mutil.down(
+        initial_trading_currency_allocation.portion - free_allocation_space,
+        4
       );
     } else {
-      initial_trading_currency_allocation.portion = Math.fround(
-        free_allocation_space
+      initial_trading_currency_allocation.portion = mutil.down(
+        free_allocation_space,
+        4
       );
     }
-    allocation.push(initial_trading_currency_allocation);
+    allocations.push(initial_trading_currency_allocation);
   } else {
-    allocation[tradingCurrencyIndex].portion = Math.fround(
+    allocations[tradingCurrencyIndex].portion = mutil.down(
       Math.max(
-        allocation[tradingCurrencyIndex].portion,
+        allocations[tradingCurrencyIndex].portion,
         TRADING_CURRENCY.portion,
         free_allocation_space
-      )
+      ),
+      4
     );
   }
 }
@@ -110,7 +118,7 @@ function checkCorrectness(desired_allocations, exchanges, AMOUNT) {
   let reallocated_amount = { total: { amount: 0, portion: 0 } };
   desired_allocations.forEach(exchange_allocation => {
     exchange_allocation.allocations.forEach(allocation => {
-      reallocated_amount[allocation.id] = { amount: 0 };
+      reallocated_amount[allocation.coin] = { amount: 0 };
     });
   });
 
@@ -121,7 +129,7 @@ function checkCorrectness(desired_allocations, exchanges, AMOUNT) {
         allocation.portion *
         exchanges.find(ex => ex.name == exchange_allocation.exchange).weight;
 
-      reallocated_amount[allocation.id].amount += coin_amount;
+      reallocated_amount[allocation.coin].amount += coin_amount;
       reallocated_amount.total.amount += coin_amount;
     });
   });
@@ -140,7 +148,8 @@ function checkCorrectness(desired_allocations, exchanges, AMOUNT) {
       overall_range_correct:
         reallocated_amount.total.portion >= 0.999 &&
         reallocated_amount.total.portion <= 1,
-      trading_currency_present: reallocated_amount[TRADING_CURRENCY.id] != null
+      trading_currency_present:
+        reallocated_amount[TRADING_CURRENCY.coin] != null
     }
   };
 
@@ -148,7 +157,7 @@ function checkCorrectness(desired_allocations, exchanges, AMOUNT) {
 }
 
 module.exports = {
-  allocate: (exchanges, coins) => allocate(exchanges, coins),
+  allocate: (exchanges, allocations) => allocate(exchanges, allocations),
   checkCorrectness: (allocations, exchanges, amount) =>
     checkCorrectness(allocations, exchanges, amount)
 };

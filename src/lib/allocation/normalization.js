@@ -1,15 +1,15 @@
 module.exports = {
   normalize: packs => {
-    let coinsSet = new Set();
+    let allocationSet = new Set();
     packs.forEach(pack => {
-      pack.allocations.map(allocation => coinsSet.add(allocation.coin));
+      pack.allocations.map(allocation => allocationSet.add(allocation.coin));
     });
 
-    let coins = Array.from(coinsSet);
+    let allocation = Array.from(allocationSet);
 
     let portfolio = {};
-    coins.forEach(
-      coin => (portfolio[coin] = { id: coin, portion: 0, overallocation: 0 })
+    allocation.forEach(
+      coin => (portfolio[coin] = { coin: coin, portion: 0, overallocation: 0 })
     );
 
     packs.forEach(pack => {

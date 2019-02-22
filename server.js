@@ -3,11 +3,12 @@ const app = express();
 const boot = require("./boot");
 const fs = require("fs");
 
+require("./database").connect();
 boot(app);
-//var database = require('./database')
-//database.connect()
+
 //const security = require('./api/security')
 //app.use(security.jwt());
+
 app.use(express.static("public"));
 
 const apiRouterFiles = fs.readdirSync("./src/api/routes");
