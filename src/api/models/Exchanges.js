@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var exchangeSchema = new Schema({
-  id: String, //Binance
+  label: String, //Binance
   credentials: { api_key: String, secret: String },
-  enabled: Boolean
+  enabled: { type: Boolean, default: true }
 });
 
 var Exchange = mongoose.model("Exchange", exchangeSchema);

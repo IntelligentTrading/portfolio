@@ -1,19 +1,22 @@
 const express = require("express");
+const router = express.Router();
 const app = express();
 const boot = require("./boot");
 const fs = require("fs");
+var jwt = require("jsonwebtoken");
 
 require("./database").connect();
 boot(app);
 
-//const security = require('./api/security')
-//app.use(security.jwt());
-
 app.use(express.static("public"));
+
+const jwtSecret = process.env.JWT_SECRET;
+app.set("jwt-secret", jwtSecret);
 
 const apiRouterFiles = fs.readdirSync("./src/api/routes");
 apiRouterFiles.forEach(rf => {
-  app.use(`/api/${rf.replace(".js", "")}`, require(`./src/api/routes/${rf}`));
+  const route = `/api/${rf.replace(".js", "")}`;
+  app.use(route, validateToken, require(`./src/api/routes/${rf}`));
 });
 
 app.listen(app.get("port"), function() {
@@ -21,3 +24,44 @@ app.listen(app.get("port"), function() {
 });
 
 module.exports = app;
+
+var getBearerToken = function(header, callback) {
+  if (header && header.startsWith("Bearer ")) {
+    // Remove Bearer from string
+    header = header.slice(7, header.length);
+    if (header.length > 0) return callback(null, token[1]);
+    else {
+      return callback("Malformed bearer token", null);
+    }
+  } else {
+    return callback("Missing authorization header", null);
+  }
+};
+
+function validateToken(request, response, next) {
+  if (!request.baseUrl.startsWith("/api/auth")) {
+    const token = request.headers["authorization"];
+    if (token && token.startsWith("Bearer ")) {
+      // Remove Bearer from string
+      token = token.slice(7, token.length);
+      if (token.length <= 0) {
+        response
+          .status(401)
+          .send({ success: false, message: "Malformed bearer token" });
+      } else {
+        jwt.verify(token, app.get("jwt-secret"), function(error) {
+          if (error) {
+            response
+              .status(401)
+              .send({ success: false, error: "Invalid authorization token" });
+          }
+        });
+      }
+    } else {
+      response
+        .status(401)
+        .send({ success: false, message: "Missing authorization header" });
+    }
+  }
+  next();
+}

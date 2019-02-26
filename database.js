@@ -1,7 +1,5 @@
 var mongoose = require("mongoose");
-
-let database_name = "portfolio";
-let db_uri = `mongodb://127.0.0.1:27017/${database_name}`; //process.env.MONGODB_URI
+let db_uri = process.env.MONGODB_URI;
 
 module.exports.connect = () => {
   var options = {
