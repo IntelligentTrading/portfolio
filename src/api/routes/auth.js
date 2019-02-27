@@ -6,11 +6,11 @@ router.post("/login", (req, res) => {
   resolver(userCtrl.authenticate(req), res);
 });
 
-router.put("/forgot", (req, res) => {
+router.post("/forgot", (req, res) => {
   resolver(userCtrl.forgot(req.body), res);
 });
 
-router.post("/reset/:token", (req, res) => {
+router.put("/reset/:token", (req, res) => {
   resolver(userCtrl.reset(req.params.token, req.body.newPassword), res);
 });
 

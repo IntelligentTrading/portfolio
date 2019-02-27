@@ -3,15 +3,21 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const mailer = require("../util/mailer");
+const sec = require("../../lib/security/keymanager");
+const allocationCtrl = require("../controllers/allocation");
 
-module.exports = {
-  create: info => {
+const ctrl = (module.exports = {
+  create: async info => {
     return UserModel.create(info).then(newUser => {
       return { statusCode: 201, object: newUser };
     });
   },
-  getById: id => {
-    if (mongoose.Types.ObjectId.isValid(id)) return UserModel.findById(id);
+  getById: async id => {
+    if (mongoose.Types.ObjectId.isValid(id))
+      return UserModel.findById(id).then(user => {
+        if (user) return user;
+        return Promise.reject(new Error("User not found"));
+      });
     return Promise.reject(new Error("Invalid object id"));
   },
   getByEmail: email => {
@@ -51,12 +57,13 @@ module.exports = {
 
         return {
           user: userInfo.getShareableProperties(),
+          pubKey: sec.publicKey().toString("base64"),
           token: token
         };
       });
     });
   },
-  forgot: userData => {
+  forgot: async userData => {
     if (!userData.email)
       return Promise.resolve({ statusCode: 400, object: "Email not provided" });
 
@@ -81,5 +88,24 @@ module.exports = {
       user.password = newPassword;
       user.save();
     });
+  },
+  rebalance: async id => {
+    return ctrl.getById(id).then(user => {
+      if (user) {
+        if (user.exchanges.length <= 0)
+          return Promise.resolve({
+            statusCode: 500,
+            object: "No exchange has been set."
+          });
+        if (user.portfolio.packs.length <= 0)
+          return Promise.resolve({
+            statusCode: 500,
+            object: "No package has been set."
+          });
+        return allocationCtrl.allocate(user.exchanges, user.portfolio.packs);
+      }
+
+      return Promise.resolve({ statusCode: 400, object: "User not found" });
+    });
   }
-};
+});

@@ -44,8 +44,8 @@ userSchema.methods.comparePassword = function(candidatePassword) {
 };
 
 userSchema.methods.getShareableProperties = function() {
-  const { email, portfolio, exchanges, enabled, createdAt, updatedAt } = this;
-  return { email, portfolio, exchanges, enabled, createdAt, updatedAt };
+  const {_id, email, portfolio, exchanges, enabled, createdAt, updatedAt } = this;
+  return { _id, email, portfolio, exchanges, enabled, createdAt, updatedAt };
 };
 
 module.exports = mongoose.model("User", userSchema);

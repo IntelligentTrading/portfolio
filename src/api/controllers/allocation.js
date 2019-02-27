@@ -1,40 +1,60 @@
 const allocationEngine = require("../../lib/allocation/allocation");
 const normalizer = require("../../lib/allocation/normalization");
-let portfolio = require('../../lib/portfolio/info')
-
-// retreived from settings or config or db
-const exchanges = [
-  { name: "EX1", supported: ["BTC", "ETH"], weight: 0.1 },
-  { name: "EX2", supported: ["BTC", "ETH", "OMG", "ADA", "XRP"], weight: 0.9 }
-];
-
+let portfolio = require("../../lib/portfolio/info");
+const tradingClient = require("../trading/client");
 
 module.exports = {
-  allocate: packs => {
-    let coins = normalizer.normalize(packs);
-    let desired_allocations = allocationEngine.allocate(exchanges, coins);
-    return Promise.resolve(desired_allocations);
+  allocate: (exchanges, packs) => {
+    let promises = [];
+    exchanges.map(exchange => {
+      promises.push(tradingClient.status("trading_api_key", exchange));
+    });
+
+    promises.push(
+      Promise.resolve({
+        binance: ["BTC", "ETH", "XRP"],
+        coinbase: ["BTC", "ETH", "LTC"]
+      })
+    );
+
+    return Promise.all(promises)
+      .then(fulfillments => {
+        const connectedExchanges = fulfillments.slice(
+          0,
+          fulfillments.length - 2
+        );
+
+        let total = 0;
+        connectedExchanges.forEach(x => {
+          total += x[Object.getOwnPropertyNames(x)[0]].value;
+        });
+
+        const supportedCoinsLists = fulfillments[fulfillments.length - 1];
+        connectedExchanges.forEach(exchange => {
+          const exchangeLabel = Object.getOwnPropertyNames(exchange)[0];
+          const idx = exchanges.findIndex(x => x.label === exchangeLabel);
+          if (idx >= 0) {
+            exchanges[idx].supported = supportedCoinsLists[exchangeLabel];
+            exchanges[idx].weight = exchange[exchangeLabel].value / total;
+          }
+        });
+      })
+      .then(() => {
+        let coins = normalizer.normalize(packs);
+        let desired_allocations = allocationEngine.allocate(
+          exchanges.filter(x => x.supported && x.supported.length > 0),
+          coins
+        );
+        return Promise.resolve(desired_allocations);
+      });
   },
   checkAllocations: desired_allocations => {
-    return Promise.resolve(allocationEngine.checkCorrectness(desired_allocations, exchanges, portfolio.amount()));
+    return Promise.resolve(
+      allocationEngine.checkCorrectness(
+        desired_allocations,
+        exchanges,
+        portfolio.amount()
+      )
+    );
   }
 };
-
-/* Request body
-const PACKS = [
-  {
-    name: "risky",
-    weight: 0.4,
-    allocations: [
-      { coin: "XRP", portion: 0.2 },
-      { coin: "OMG", portion: 0.5 },
-      { coin: "ADA", portion: 0.3 }
-    ]
-  },
-  {
-    name: "conservative",
-    weight: 0.6,
-    allocations: [{ coin: "ETH", portion: 0.7 }, { coin: "XVG", portion: 0.3 }]
-  }
-];
-*/

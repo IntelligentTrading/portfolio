@@ -39,25 +39,25 @@ function allocateExchange(allocations, exchange) {
     }
   }
 
-  let allocation = [];
+  let distribution = [];
   let average_additional_space =
     (1 - total_space_required) / exchange.supported.length;
 
   for (i = 0; i < allocations.length; i++) {
-    let allocation_item = { ...allocations[i] };
-    if (exchange.supported.includes(allocation_item.coin)) {
-      allocation_item.portion += average_additional_space;
-      allocation_item.overallocation =
+    let allocation = { ...allocations[i] };
+    if (exchange.supported.includes(allocation.coin)) {
+      allocation.portion += average_additional_space;
+      allocation.overallocation =
         average_additional_space * exchange.weight;
       allocations[i].overallocation =
         average_additional_space * exchange.weight; // I have to track it
-      allocation.push(allocation_item);
-    } else allocation_item.portion = 0;
+      distribution.push(allocation);
+    } else allocation.portion = 0;
   }
 
-  adjustTradingCurrencyAllocation(allocation);
+  adjustTradingCurrencyAllocation(distribution);
 
-  return allocation;
+  return distribution;
 }
 
 function allocate(exchanges, coins) {
@@ -66,7 +66,7 @@ function allocate(exchanges, coins) {
   exchanges.forEach(exchange => {
     let allocation = allocateExchange(allocable_coins, exchange);
     desired_allocations.push({
-      exchange: exchange.name,
+      exchange: exchange.label,
       allocations: allocation
     });
   });
@@ -127,7 +127,7 @@ function checkCorrectness(desired_allocations, exchanges, AMOUNT) {
       let coin_amount =
         AMOUNT *
         allocation.portion *
-        exchanges.find(ex => ex.name == exchange_allocation.exchange).weight;
+        exchanges.find(ex => ex.label == exchange_allocation.exchange).weight;
 
       reallocated_amount[allocation.coin].amount += coin_amount;
       reallocated_amount.total.amount += coin_amount;

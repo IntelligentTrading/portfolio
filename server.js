@@ -40,7 +40,7 @@ var getBearerToken = function(header, callback) {
 
 function validateToken(request, response, next) {
   if (!request.baseUrl.startsWith("/api/auth")) {
-    const token = request.headers["authorization"];
+    let token = request.headers["authorization"];
     if (token && token.startsWith("Bearer ")) {
       // Remove Bearer from string
       token = token.slice(7, token.length);
@@ -49,7 +49,7 @@ function validateToken(request, response, next) {
           .status(401)
           .send({ success: false, message: "Malformed bearer token" });
       } else {
-        jwt.verify(token, app.get("jwt-secret"), function(error) {
+        jwt.verify(token, app.get("jwt-secret"), function(error, decoded) {
           if (error) {
             response
               .status(401)
