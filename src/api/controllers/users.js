@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const mailer = require("../util/mailer");
 const sec = require("../../lib/security/keymanager");
 const allocationCtrl = require("../controllers/allocation");
+const packsCtrl = require("../controllers/packs");
 
 const ctrl = (module.exports = {
   create: async info => {
@@ -102,10 +103,110 @@ const ctrl = (module.exports = {
             statusCode: 500,
             object: "No package has been set."
           });
-        return allocationCtrl.allocate(user.exchanges, user.portfolio.packs);
+        return packsCtrl.list().then(dbpacks => {
+          let userPacks = dbpacks.filter(dbp =>
+            user.portfolio.packs.includes(dbp.label)
+          );
+          return allocationCtrl.allocate(user.exchanges, userPacks);
+        });
       }
 
       return Promise.resolve({ statusCode: 400, object: "User not found" });
     });
+  },
+  exchanges: {
+    add: async (id, exchange) => {
+      let message = "";
+      return ctrl.getById(id).then(user => {
+        if (user) {
+          if (!user.exchanges.some(x => x.label === exchange.label)) {
+            user.exchanges.push(exchange);
+            message = "Exchange added.";
+            user.save();
+            return { statusCode: 200, object: message };
+          } else {
+            return {
+              statusCode: 418,
+              object: "Exchange already present in user's list"
+            };
+          }
+        }
+        return { statusCode: 418, object: "User not found" };
+      });
+    },
+    edit: async (id, exchange) => {
+      let message = "";
+      return ctrl.getById(id).then(user => {
+        if (user) {
+          let index = user.exchanges.findIndex(x => x.label === exchange.label);
+          if (index < 0) message = "Exchange not found for this user.";
+          else {
+            user.exchanges[index] = exchange;
+            message = "Exchange updated.";
+            user.save();
+          }
+        }
+        return { statusCode: 200, object: message };
+      });
+    },
+    delete: async (id, exchange) => {
+      return ctrl.getById(id).then(user => {
+        if (user) {
+          let index = user.exchanges.findIndex(x => x.label === exchange.label);
+          if (index < 0)
+            return {
+              statusCode: 418,
+              object: "Exchange not found for this user."
+            };
+          else {
+            user.exchanges.splice(index, 1);
+            user.save();
+            return { statusCode: 200, object: "Exchange deleted." };
+          }
+        }
+        return { statusCode: 418, object: "User not found" };
+      });
+    }
+  },
+  packs: {
+    add: async (id, pack) => {
+      let message = "";
+      return ctrl.getById(id).then(user => {
+        if (user) {
+          if (!user.portfolio.packs.some(x => x.label === pack)) {
+            user.portfolio.packs.push(pack);
+            message = "Packaged added.";
+            user.save();
+            return { statusCode: 200, object: message };
+          } else {
+            return {
+              statusCode: 418,
+              object: "Package already present in user's portfolio"
+            };
+          }
+        }
+        return { statusCode: 418, object: "User not found" };
+      });
+    },
+    delete: async (id, pack) => {
+      return ctrl.getById(id).then(user => {
+        if (user) {
+          let index = user.portfolio.packs.findIndex(
+            x => x.label === pack.label
+          );
+          if (index < 0)
+            return {
+              statusCode: 418,
+              object: "Pack not found for this user."
+            };
+          else {
+            user.portfolio.packs.splice(index, 1);
+            user.save();
+            return { statusCode: 200, object: "Pack deleted." };
+          }
+        }
+        return { statusCode: 418, object: "User not found" };
+      });
+    }
   }
 });

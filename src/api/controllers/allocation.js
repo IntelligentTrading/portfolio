@@ -19,10 +19,9 @@ module.exports = {
 
     return Promise.all(promises)
       .then(fulfillments => {
-        const connectedExchanges = fulfillments.slice(
-          0,
-          fulfillments.length - 2
-        );
+        const connectedExchanges = fulfillments
+          .filter(f => f != null)
+          .slice(0, fulfillments.length - 2);
 
         let total = 0;
         connectedExchanges.forEach(x => {

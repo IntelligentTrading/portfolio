@@ -12,10 +12,9 @@ module.exports = {
       coin => (portfolio[coin] = { coin: coin, portion: 0, overallocation: 0 })
     );
 
-  
     packs.forEach(pack => {
       pack.allocations.forEach(allocation => {
-        portfolio[allocation.coin].portion += allocation.portion * pack.weight;
+        portfolio[allocation.coin].portion += allocation.portion; //* pack.weight// this will be set by the user in the future;
       });
     });
 
