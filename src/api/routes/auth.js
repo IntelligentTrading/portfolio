@@ -6,6 +6,10 @@ router.post("/login", (req, res) => {
   resolver(userCtrl.authenticate(req), res);
 });
 
+router.post("/register", (req, res) => {
+  resolver(userCtrl.create(req.body), res);
+});
+
 router.post("/forgot", (req, res) => {
   resolver(userCtrl.forgot(req.body), res);
 });

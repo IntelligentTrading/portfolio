@@ -30,10 +30,6 @@ router.put("/:id/rebalance", (req, res) => {
   resolver(userCtrl.rebalance(req.params.id), res);
 });
 
-router.post("/", (req, res) => {
-  resolver(userCtrl.create(req.body), res);
-});
-
 router.get("/:id?", (req, res) => {
   if (req.params.id) {
     resolver(userCtrl.getById(req.params.id), res);
