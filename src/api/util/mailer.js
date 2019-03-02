@@ -18,10 +18,10 @@ module.exports = {
       subject: "Reset email", // Subject line
       text: `Follow ${
         process.env.PORTFOLIO_APP
-      }/api/auth/reset/${token}/ to reset your email. Not you? Let us know!`, // plain text body
+      }#/auth/reset/${token}/ to reset your email. Not you? Let us know!`, // plain text body
       html: `Follow ${
         process.env.PORTFOLIO_APP
-      }/api/auth/reset/${token} to reset your email. Not you? Let us know!` // html body
+      }#/auth/reset/${token} to reset your email. Not you? Let us know!` // html body
     };
 
     return client.sendMail(email);
