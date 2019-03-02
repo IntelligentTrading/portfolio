@@ -10,9 +10,6 @@ boot(app);
 
 app.use(express.static("public"));
 
-const jwtSecret = process.env.JWT_SECRET;
-app.set("jwt-secret", jwtSecret);
-
 const apiRouterFiles = fs.readdirSync("./src/api/routes");
 apiRouterFiles.forEach(rf => {
   const route = `/api/${rf.replace(".js", "")}`;

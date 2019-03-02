@@ -27,9 +27,7 @@ const ctrl = (module.exports = {
   all: () => {
     return UserModel.find();
   },
-  authenticate: async fullRequest => {
-    let credentials = fullRequest.body;
-
+  authenticate: async credentials => {
     if (!credentials.email || !credentials.password) {
       return Promise.resolve({
         statusCode: 401,
@@ -48,13 +46,9 @@ const ctrl = (module.exports = {
             object: "Invalid credentials."
           });
 
-        const token = jwt.sign(
-          { id: userInfo._id },
-          fullRequest.app.get("jwt-secret"),
-          {
-            expiresIn: "4h"
-          }
-        );
+        const token = jwt.sign({ id: userInfo._id }, process.env.JWT_SECRET, {
+          expiresIn: "4h"
+        });
 
         return {
           user: userInfo.getShareableProperties(),

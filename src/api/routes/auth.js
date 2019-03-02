@@ -3,7 +3,7 @@ const userCtrl = require("../controllers/users");
 const resolver = require("../util/resolver");
 
 router.post("/login", (req, res) => {
-  resolver(userCtrl.authenticate(req), res);
+  resolver(userCtrl.authenticate(req.body), res);
 });
 
 router.post("/register", (req, res) => {
