@@ -46,7 +46,7 @@ function validateToken(request, response, next) {
           .status(401)
           .send({ success: false, message: "Malformed bearer token" });
       } else {
-        jwt.verify(token, app.get("jwt-secret"), function(error, decoded) {
+        jwt.verify(token, process.env.JWT_SECRET, function(error, decoded) {
           if (error) {
             response
               .status(401)

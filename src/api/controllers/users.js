@@ -6,6 +6,7 @@ const mailer = require("../util/mailer");
 const sec = require("../../lib/security/keymanager");
 const allocationCtrl = require("../controllers/allocation");
 const packsCtrl = require("../controllers/packs");
+const tradingClient = require("../trading/client");
 
 const ctrl = (module.exports = {
   create: async info => {
@@ -202,5 +203,25 @@ const ctrl = (module.exports = {
         return { statusCode: 418, object: "User not found" };
       });
     }
+  },
+  portfolio: async id => {
+    return ctrl.getById(id).then(user => {
+      if (user) {
+        let statusPromises = [];
+        user.exchanges.map(exchange => {
+          statusPromises.push(
+            tradingClient.status("trading-api-key", exchange)
+          );
+        });
+
+        return Promise.all(statusPromises)
+          .then(results => {
+            return results.filter(result => result != null);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+    });
   }
 });

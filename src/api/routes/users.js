@@ -28,6 +28,10 @@ router.put("/:id/rebalance", (req, res) => {
   resolver(userCtrl.rebalance(req.params.id), res);
 });
 
+router.get("/:id/portfolio", (req, res) => {
+  resolver(userCtrl.portfolio(req.params.id), res);
+});
+
 router.get("/:id?", (req, res) => {
   if (req.params.id) {
     resolver(userCtrl.getById(req.params.id), res);
