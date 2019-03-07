@@ -111,14 +111,17 @@ const ctrl = (module.exports = {
   },
   exchanges: {
     add: async (id, exchange) => {
-      let message = "";
       return ctrl.getById(id).then(user => {
         if (user) {
           if (!user.exchanges.some(x => x.label === exchange.label)) {
             user.exchanges.push(exchange);
-            message = "Exchange added.";
             user.save();
-            return { statusCode: 200, object: message };
+            return {
+              statusCode: 200,
+              object: user.exchanges.map(exchange =>
+                exchange.getShareableProperties()
+              )
+            };
           } else {
             return {
               statusCode: 418,
@@ -164,13 +167,32 @@ const ctrl = (module.exports = {
     }
   },
   packs: {
+    switch: async (id, pack) => {
+      let message = "";
+      return ctrl.getById(id).then(user => {
+        if (user) {
+          if (!user.portfolio.packs.some(x => x.label === pack)) {
+            user.portfolio.packs = [pack];
+            message = "Package switched.";
+            user.save();
+            return { statusCode: 200, object: message };
+          } else {
+            return {
+              statusCode: 418,
+              object: "Package already present in user's portfolio"
+            };
+          }
+        }
+        return { statusCode: 418, object: "User not found" };
+      });
+    },
     add: async (id, pack) => {
       let message = "";
       return ctrl.getById(id).then(user => {
         if (user) {
           if (!user.portfolio.packs.some(x => x.label === pack)) {
             user.portfolio.packs.push(pack);
-            message = "Packaged added.";
+            message = "Package added.";
             user.save();
             return { statusCode: 200, object: message };
           } else {

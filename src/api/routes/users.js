@@ -16,6 +16,10 @@ router.delete("/:id/exchanges", (req, res) => {
   resolver(userCtrl.exchanges.delete(req.params.id, req.body), res);
 });
 
+router.put("/:id/packs/switch", (req, res) => {
+  resolver(userCtrl.packs.switch(req.params.id, req.body.label), res);
+});
+
 router.post("/:id/packs", (req, res) => {
   resolver(userCtrl.packs.add(req.params.id, req.body.label), res);
 });

@@ -14,7 +14,15 @@ module.exports = {
           {
             coin: "BNB",
             amount: 22.12932881,
-            portion: 0.4999
+            portion: 0.30
+          },{
+            coin: "LTC",
+            amount: 200,
+            portion: 0.1
+          },{
+            coin: "ADA",
+            amount: 1450,
+            portion: 0.1
           }
         ]
       },
@@ -23,7 +31,7 @@ module.exports = {
         allocations: [
           {
             coin: "LTC",
-            amount: 200,
+            amount: 42,
             portion: 1
           }
         ]
@@ -31,7 +39,7 @@ module.exports = {
     };
 
     let result = { exchange: exchangeAccount.label };
-    result["data"] = enabledExchanges[exchangeAccount.label];
+    result["data"] = enabledExchanges[exchangeAccount.label.toLowerCase()];
 
     return Promise.resolve(result);
   }
