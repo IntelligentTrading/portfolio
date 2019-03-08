@@ -4,11 +4,10 @@ var Schema = mongoose.Schema;
 
 var portfolioSchema = new Schema({
   id: String, //Binance
-  packs: { type: [String], default: [] },
+  packs: { type: [String], default: ["conservative"] },
   lastRealizedDistribution: Distribution.schema,
   lastRebalance: Date
 });
 
 var Porfolio = mongoose.model("Portfolio", portfolioSchema);
 module.exports = Porfolio;
-

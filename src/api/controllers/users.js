@@ -133,18 +133,22 @@ const ctrl = (module.exports = {
       });
     },
     edit: async (id, exchange) => {
-      let message = "";
       return ctrl.getById(id).then(user => {
         if (user) {
           let index = user.exchanges.findIndex(x => x.label === exchange.label);
           if (index < 0) message = "Exchange not found for this user.";
           else {
-            user.exchanges[index] = exchange;
-            message = "Exchange updated.";
+            user.exchanges[index].credentials = exchange.credentials;
             user.save();
           }
         }
-        return { statusCode: 200, object: message };
+
+        return {
+          statusCode: 200,
+          object: user.exchanges.map(exchange =>
+            exchange.getShareableProperties()
+          )
+        };
       });
     },
     delete: async (id, exchange) => {
@@ -159,7 +163,12 @@ const ctrl = (module.exports = {
           else {
             user.exchanges.splice(index, 1);
             user.save();
-            return { statusCode: 200, object: "Exchange deleted." };
+            return {
+              statusCode: 200,
+              object: user.exchanges.map(exchange =>
+                exchange.getShareableProperties()
+              )
+            };
           }
         }
         return { statusCode: 418, object: "User not found" };
