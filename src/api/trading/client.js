@@ -1,46 +1,37 @@
+const rp = require('request-promise')
+const crypto = require('crypto')
+
+const portfolio_url = process.env.ITF_TRADING_API + '/portfolio/'
+process.env.ITF_TRADING_API_KEY
+
 module.exports = {
-  status: (api_key, exchangeAccount) => {
+  status: exchangeAccount => {
     // decrypt exchangeAccount credentials with pvt key
 
-    const enabledExchanges = {
-      binance: {
-        value: 2.53439324,
-        allocations: [
-          {
-            coin: "BTC",
-            amount: 1.42321311,
-            portion: 0.4999
-          },
-          {
-            coin: "BNB",
-            amount: 22.12932881,
-            portion: 0.30
-          },{
-            coin: "LTC",
-            amount: 200,
-            portion: 0.1
-          },{
-            coin: "ADA",
-            amount: 1450,
-            portion: 0.1
-          }
-        ]
+    var options = {
+      method: 'POST',
+      uri: portfolio_url,
+      body: {
+        api_key: process.env.ITF_TRADING_API_KEY
       },
-      coinbase: {
-        value: 0.314,
-        allocations: [
-          {
-            coin: "LTC",
-            amount: 42,
-            portion: 1
-          }
-        ]
-      }
-    };
+      json: true // Automatically stringifies the body to JSON
+    }
 
-    let result = { exchange: exchangeAccount.label };
-    result["data"] = enabledExchanges[exchangeAccount.label.toLowerCase()];
+    let decrypted_api = crypto.privateDecrypt(
+      process.env.PVT_PEM,
+      Buffer.from(exchangeAccount.credentials.api_key, 'base64')
+    )
 
-    return Promise.resolve(result);
+    let decrypted_secret = crypto.privateDecrypt(
+      process.env.PVT_PEM,
+      Buffer.from(exchangeAccount.credentials.secret, 'base64')
+    )
+
+    options.body[exchangeAccount.label] = {
+      secret_key: decrypted_secret.toString(),
+      api_key: decrypted_api.toString()
+    }
+
+    return rp(options)
   }
-};
+}
