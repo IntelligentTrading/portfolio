@@ -2,7 +2,7 @@ var Scheduler = require('redis-scheduler')
 const notifier = require('../util/socketServer')
 const tradingClient = require('./client')
 
-var scheduler = new Scheduler()
+var scheduler = new Scheduler({ host: 'localhost', port: 6379 })
 
 function notify (err, key) {
   console.log(key)
