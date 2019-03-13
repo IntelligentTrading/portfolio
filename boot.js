@@ -1,12 +1,6 @@
 var bodyParser = require('body-parser')
 var cors = require('cors')
 
-var isAuthorized = request => {
-  return true
-  // var nsvc_api_key = request.header('NSVC-API-KEY');
-  // return nsvc_api_key == process.env.NODE_SVC_API_KEY;
-}
-
 module.exports = app => {
   app.use(bodyParser.json({ limit: '50mb' }))
   app.use(cors())
@@ -23,11 +17,6 @@ module.exports = app => {
     )
 
     if (req.method == 'OPTIONS') res.send(204)
-    else next()
-  })
-
-  app.use('/api', function (req, res, next) {
-    if (!isAuthorized(req)) res.sendStatus(401)
     else next()
   })
 

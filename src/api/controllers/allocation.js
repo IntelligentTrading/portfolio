@@ -6,6 +6,7 @@ const tradingClient = require('../trading/client')
 const exchangesCtrl = require('./exchanges')
 
 module.exports = {
+  // user potentially connected exchanges
   allocate: async (exchanges, packs) => {
     let promises = []
     exchanges.map(exchange => {
@@ -16,9 +17,14 @@ module.exports = {
 
     return Promise.all(promises)
       .then(fulfillments => {
-        const connectedExchanges = fulfillments
+        // user connected exchanges ie with a status
+        const connectedExchanges = []
+        fulfillments
           .slice(0, exchanges.length)
           .filter(f => f != null)
+          .map(connectedExchange => {
+            connectedExchanges.push(new ConfiguredExchange(connectedExchange))
+          })
 
         let total = 0
         connectedExchanges.forEach(x => {
@@ -27,16 +33,18 @@ module.exports = {
 
         const supportedCoinsLists = fulfillments[exchanges.length]
         connectedExchanges.forEach(ce => {
-          const idx = exchanges.findIndex(x => x.label === ce.exchange)
-          if (idx >= 0) {
-            exchanges[idx].supported = supportedCoinsLists[ce.exchange]
-            exchanges[idx].weight = ce.value / total
-          }
+          ce.supportedCoins = supportedCoinsLists[ce.label]
+          ce.weight = ce.weight / total
         })
+
+        return connectedExchanges
       })
-      .then(() => {
+      .then(connectedExchanges => {
         let coins = normalizer.normalize(packs)
-        let desired_allocations = allocationEngine.allocate(exchanges, coins)
+        let desired_allocations = allocationEngine.allocate(
+          connectedExchanges,
+          coins
+        )
         return Promise.resolve(desired_allocations)
       })
   },
@@ -48,5 +56,26 @@ module.exports = {
         portfolio.amount()
       )
     )
+  }
+}
+
+class ConfiguredExchange {
+  constructor (exchangeObject) {
+    const properties = Object.getOwnPropertyNames(exchangeObject)
+    if (properties.length > 0) {
+      this.label = properties[0]
+      this.value = exchangeObject[this.label].value
+      this.allocations = exchangeObject[this.label].allocations
+      this.supportedCoins = []
+      this.weight = 0
+    }
+  }
+
+  supports (coin) {
+    return this.supportedCoins[coin] != null
+  }
+
+  supportedCoinsLength () {
+    return Object.getOwnPropertyNames(this.supportedCoins).length
   }
 }

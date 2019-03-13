@@ -7,6 +7,7 @@ const sec = require('../../lib/security/keymanager')
 const allocationCtrl = require('../controllers/allocation')
 const packsCtrl = require('../controllers/packs')
 const tradingClient = require('../trading/client')
+const monitor = require('../trading/monitor')
 
 const ctrl = (module.exports = {
   create: async info => {
@@ -109,7 +110,36 @@ const ctrl = (module.exports = {
           let userPacks = dbpacks.filter(dbp =>
             user.portfolio.packs.includes(dbp.label)
           )
-          return allocationCtrl.allocate(user.exchanges, userPacks)
+          return allocationCtrl
+            .allocate(user.exchanges, userPacks)
+            .then(desired_allocations => {
+              desired_allocations.forEach(desired_allocation => {
+                desired_allocation.credentials = user.exchanges.find(
+                  x => x.label == desired_allocation.exchange
+                ).credentials
+              })
+              return tradingClient
+                .set(desired_allocations)
+                .then(portfolioResult => {
+                  portfolioResult.portfolio_processing_request = portfolioResult.portfolio_processing_request.replace(
+                    '/api/portfolio_process/',
+                    ''
+                  )
+                  monitor.schedule(
+                    `${id}|${portfolioResult.portfolio_processing_request}`,
+                    portfolioResult.retry_after
+                  )
+
+                  return portfolioResult.status
+                })
+                .catch(err => {
+                  console.log(err.message)
+                  return Promise.resolve({
+                    statusCode: 500,
+                    object: 'Rebalancing failed, please retry.'
+                  })
+                })
+            })
         })
       }
 

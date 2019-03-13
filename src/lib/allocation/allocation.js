@@ -5,10 +5,9 @@ const MIN_ALLOCATION = 0.0005
 
 function allocateExchange (allocations, exchange) {
   let total_space_required = 0
-  let exchangeSupportedCoins = Object.getOwnPropertyNames(exchange.supported)
 
   allocations.forEach(allocation => {
-    total_space_required += exchangeSupportedCoins.includes(allocation.coin)
+    total_space_required += exchange.supports(allocation.coin)
       ? allocation.portion
       : 0
   })
@@ -20,19 +19,21 @@ function allocateExchange (allocations, exchange) {
   for (i = 0; i < allocations.length; i++) {
     if (
       allocations[i].overallocation > 0 &&
-      exchangeSupportedCoins.includes(allocations[i].coin)
+      exchange.supports(allocations[i].coin)
     ) {
       allocations[i].portion -= allocations[i].overallocation / exchange.weight
 
       let percentage_redistribution =
         (allocations[i].overallocation * exchange.weight) /
-        (exchangeSupportedCoins.length - 1)
+        (exchange.supportedCoinsLength() - 1)
 
       for (j = 0; j < allocations.length; j++) {
         if (
           allocations[j].coin !== allocations[i].coin &&
-          exchangeSupportedCoins.includes(allocations[j].coin)
-        ) { allocations[j].portion += percentage_redistribution }
+          exchange.supports(allocations[j].coin)
+        ) {
+          allocations[j].portion += percentage_redistribution
+        }
       }
 
       allocations[i].overallocation = 0
@@ -41,11 +42,11 @@ function allocateExchange (allocations, exchange) {
 
   let distribution = []
   let average_additional_space =
-    (1 - total_space_required) / exchangeSupportedCoins.length
+    (1 - total_space_required) / exchange.supportedCoinsLength()
 
   for (i = 0; i < allocations.length; i++) {
     let allocation = { ...allocations[i] }
-    if (exchangeSupportedCoins.includes(allocation.coin)) {
+    if (exchange.supports(allocation.coin)) {
       allocation.portion += average_additional_space
       allocation.overallocation = average_additional_space * exchange.weight
       allocations[i].overallocation = average_additional_space * exchange.weight // I have to track it
