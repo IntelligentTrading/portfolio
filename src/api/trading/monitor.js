@@ -1,8 +1,11 @@
 var Scheduler = require('redis-scheduler')
+const redis = require('redis').createClient(process.env.REDIS_URL)
 const notifier = require('../util/socketServer')
 const tradingClient = require('./client')
 
-var scheduler = new Scheduler({ path: process.env.REDIS_URL })
+var scheduler = new Scheduler()
+scheduler.clients.scheduler = redis
+scheduler.clients.listener = redis
 
 function notify (err, key) {
   console.log(key)
