@@ -11,6 +11,7 @@ setInterval(() => {
 }, 20000)
 
 io.on('connection', function (socket) {
+  console.log(`User ${socket.handshake.query.user_id} connected`)
   socket.join(socket.handshake.query.user_id)
   io.to(socket.handshake.query.user_id).emit('message', 'Welcome')
 
