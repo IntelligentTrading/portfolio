@@ -8,7 +8,9 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "async-redis": "^1.1.7",
     "bcrypt": "^3.0.4",
+    "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
     "ccxt": "^1.18.356",
     "cors": "^2.8.5",

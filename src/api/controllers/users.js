@@ -134,6 +134,8 @@ const ctrl = (module.exports = {
                 })
                 .catch(err => {
                   console.log(err.message)
+                  // 400 - {"detail":"Another rebalance task from this api key is in progress."}
+                  console.log(err)
                   return Promise.resolve({
                     statusCode: 500,
                     object: 'Rebalancing failed, please retry.'
@@ -275,21 +277,31 @@ const ctrl = (module.exports = {
   portfolio: async id => {
     return ctrl.getById(id).then(user => {
       if (user) {
-        let statusPromises = []
+        let statusPromises = [monitor.checkPending(id)]
         user.exchanges.map(exchange => {
           statusPromises.push(tradingClient.status(exchange))
         })
 
         return Promise.all(statusPromises)
           .then(results => {
-            results = results.filter(result => result != null)
-            if (results) return results[0]
+            let keys = results[0]
+            results = results.slice(1).filter(result => result != null)
+            if (results) {
+              let portfolio = results[0]
+              portfolio.pending = keys
+              return portfolio
+            }
             return {}
           })
           .catch(err => {
             console.log(err)
           })
       }
+    })
+  },
+  checkPending: async id => {
+    return monitor.checkPending(id, keys => {
+      return { status: 200, object: keys }
     })
   }
 })

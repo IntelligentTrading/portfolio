@@ -10,9 +10,7 @@ io.on('connection', function (socket) {
   socket.join(socket.handshake.query.user_id)
   io.to(socket.handshake.query.user_id).emit('message', 'Welcome')
 
-  socket.on('disconnect', () => {
-    /* do something}) */
-  })
+  socket.on('disconnect', () => {})
 })
 
 module.exports = {

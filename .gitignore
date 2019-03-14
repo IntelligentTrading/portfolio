@@ -2,3 +2,5 @@
 node_modules/
 .vscode/launch.json
 dump.rdb
+src/.DS_Store
+src/api/.DS_Store
