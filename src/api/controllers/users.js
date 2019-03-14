@@ -152,7 +152,12 @@ const ctrl = (module.exports = {
     add: async (id, exchange) => {
       return ctrl.getById(id).then(user => {
         if (user) {
-          if (!user.exchanges.some(x => x.label === exchange.label)) {
+          if (
+            !user.exchanges.some(
+              x => x.label.toLowerCase() === exchange.label.toLowerCase()
+            )
+          ) {
+            exchange.label = exchange.label.toLowerCase()
             user.exchanges.push(exchange)
             user.save()
             return {
