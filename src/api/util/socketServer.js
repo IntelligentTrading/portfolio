@@ -6,6 +6,10 @@ const server = express().listen(PORT, () =>
 
 const io = require('socket.io')(server)
 
+setInterval(() => {
+  io.emit('heartbeat', `Emitting heartbeat...`)
+}, 20000)
+
 io.on('connection', function (socket) {
   socket.join(socket.handshake.query.user_id)
   io.to(socket.handshake.query.user_id).emit('message', 'Welcome')
