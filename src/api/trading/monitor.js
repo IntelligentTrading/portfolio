@@ -19,14 +19,14 @@ function notify (err, key) {
         data: progress.status
       })
     } else {
-      emitter.set(key_value, '', 'PX', 10000, notify)
+      emitter.set(key, '', 'PX', 10000, notify)
     }
   })
 }
 
 module.exports = {
   schedule: (key_value, timeout) => {
-    emitter.set(key_value, '', 'PX', 500)
+    emitter.set(key_value, '', 'PX', timeout)
   },
   checkPending: async user_id => {
     return emitter.keysAsync(`${user_id}*`)
