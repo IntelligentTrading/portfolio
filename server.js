@@ -41,6 +41,7 @@ function validateToken (request, response, next) {
               .status(401)
               .send({ success: false, error: 'Invalid authorization token' })
           }
+          else next()
         })
       }
     } else {
@@ -48,6 +49,7 @@ function validateToken (request, response, next) {
         .status(401)
         .send({ success: false, message: 'Missing authorization header' })
     }
+  } else {
+    next()
   }
-  next()
 }

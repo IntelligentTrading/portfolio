@@ -1,4 +1,5 @@
 const UserModel = require('../models/Users')
+const DistributionModel = require('../models/Distributions')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
@@ -112,23 +113,36 @@ const ctrl = (module.exports = {
           )
           return allocationCtrl
             .allocate(user.exchanges, userPacks)
-            .then(desired_allocations => {
-              desired_allocations.forEach(desired_allocation => {
+            .then(distributions => {
+              distributions.forEach(desired_allocation => {
                 desired_allocation.credentials = user.exchanges.find(
                   x => x.label == desired_allocation.exchange
                 ).credentials
               })
               return tradingClient
-                .set(desired_allocations)
+                .set(distributions)
                 .then(portfolioResult => {
                   portfolioResult.portfolio_processing_request = portfolioResult.portfolio_processing_request.replace(
                     '/api/portfolio_process/',
                     ''
                   )
+                  
                   monitor.schedule(
                     `${id}|${portfolioResult.portfolio_processing_request}`,
                     portfolioResult.retry_after
                   )
+
+                  distributions = distributions.map(distribution => {
+                    return new DistributionModel({
+                      allocations: distribution.allocations,
+                      exchange: distribution.exchange,
+                      status: 'pending',
+                      pid: portfolioResult.portfolio_processing_request
+                    })
+                  })
+
+                  user.portfolio.lastDistributionRequest = distributions
+                  user.save()
 
                   return portfolioResult.status
                 })
@@ -282,18 +296,17 @@ const ctrl = (module.exports = {
   portfolio: async id => {
     return ctrl.getById(id).then(user => {
       if (user) {
-        let statusPromises = [monitor.checkPending(id)]
+        let statusPromises = []
         user.exchanges.map(exchange => {
           statusPromises.push(tradingClient.status(exchange))
         })
 
         return Promise.all(statusPromises)
           .then(results => {
-            let keys = results[0]
-            results = results.slice(1).filter(result => result != null)
+            results = results.filter(result => result != null)
             if (results) {
               let portfolio = results[0]
-              portfolio.pending = keys
+              portfolio.pending = user.portfolio.lastDistributionRequest
               return portfolio
             }
             return {}
