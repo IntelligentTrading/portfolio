@@ -1,7 +1,7 @@
 var app = require('express')()
 var server = require('http').Server(app)
 const io = require('socket.io')(server)
-const PORT = 9991
+const PORT = 80
 server.listen(PORT, () => console.log(`Socket listening on ${PORT}`))
 
 setInterval(() => {
