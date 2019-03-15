@@ -1,5 +1,10 @@
-const io = require('socket.io')(8080)
-//const PORT = 9991
+var app = require('express')()
+var http = require('http').Server(app)
+var io = require('socket.io')(http)
+
+http.listen(3000, function () {
+  console.log('Socket listening on *:3000')
+})
 
 setInterval(() => {
   io.emit('heartbeat', `Emitting heartbeat...`)
