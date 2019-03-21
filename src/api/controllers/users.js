@@ -108,73 +108,76 @@ const ctrl = (module.exports = {
   },
   rebalance: async id => {
     return ctrl.getById(id).then(user => {
-      if (user) {
-        if (user.exchanges.length <= 0) {
-          return Promise.resolve({
-            statusCode: 500,
-            object: 'No exchange has been set.'
-          })
-        }
-        if (user.portfolio.packs.length <= 0) {
-          return Promise.resolve({
-            statusCode: 500,
-            object: 'No package has been set.'
-          })
-        }
-        return packsCtrl.list().then(dbpacks => {
-          let userPacks = dbpacks.filter(dbp =>
-            user.portfolio.packs.includes(dbp.label)
-          )
-          return allocationCtrl
-            .allocate(user.exchanges, userPacks)
-            .then(distributions => {
-              distributions.forEach(desired_allocation => {
-                desired_allocation.credentials = user.exchanges.find(
-                  x => x.label == desired_allocation.exchange
-                ).credentials
-              })
-              return tradingClient
-                .set(distributions)
-                .then(portfolioResult => {
-                  portfolioResult.portfolio_processing_request = portfolioResult.portfolio_processing_request.replace(
-                    '/api/portfolio_process/',
-                    ''
-                  )
-
-                  monitor.schedule(
-                    `${id}|${portfolioResult.portfolio_processing_request}`,
-                    portfolioResult.retry_after
-                  )
-
-                  distributions = distributions.map(distribution => {
-                    return new DistributionModel({
-                      allocations: distribution.allocations,
-                      exchange: distribution.exchange,
-                      status: 'pending',
-                      pid: portfolioResult.portfolio_processing_request
-                    })
-                  })
-
-                  user.portfolio.lastDistributionRequest = distributions
-                  user.save()
-
-                  return portfolioResult.status
-                })
-                .catch(err => {
-                  console.log(err.message)
-                  // 400 - {"detail":"Another rebalance task from this api key is in progress."}
-                  console.log(err)
-                  return Promise.resolve({
-                    statusCode: 500,
-                    object: 'Rebalancing failed, please retry.'
-                  })
-                })
-            })
+      return ctrl.rebalanceUser(user)
+    })
+  },
+  rebalanceUser: async user => {
+    if (user) {
+      if (user.exchanges.length <= 0) {
+        return Promise.resolve({
+          statusCode: 500,
+          object: 'No exchange has been set.'
         })
       }
+      if (user.portfolio.packs.length <= 0) {
+        return Promise.resolve({
+          statusCode: 500,
+          object: 'No package has been set.'
+        })
+      }
+      return packsCtrl.list().then(dbpacks => {
+        let userPacks = dbpacks.filter(dbp =>
+          user.portfolio.packs.includes(dbp.label)
+        )
+        return allocationCtrl
+          .allocate(user.exchanges, userPacks)
+          .then(distributions => {
+            distributions.forEach(desired_allocation => {
+              desired_allocation.credentials = user.exchanges.find(
+                x => x.label == desired_allocation.exchange
+              ).credentials
+            })
+            return tradingClient
+              .set(distributions)
+              .then(portfolioResult => {
+                portfolioResult.portfolio_processing_request = portfolioResult.portfolio_processing_request.replace(
+                  '/api/portfolio_process/',
+                  ''
+                )
 
-      return Promise.resolve({ statusCode: 400, object: 'User not found' })
-    })
+                monitor.schedule(
+                  `${user.id}|${portfolioResult.portfolio_processing_request}`,
+                  portfolioResult.retry_after
+                )
+
+                distributions = distributions.map(distribution => {
+                  return new DistributionModel({
+                    allocations: distribution.allocations,
+                    exchange: distribution.exchange,
+                    status: 'pending',
+                    pid: portfolioResult.portfolio_processing_request
+                  })
+                })
+
+                user.portfolio.lastDistributionRequest = distributions
+                user.save()
+
+                return portfolioResult.status
+              })
+              .catch(err => {
+                console.log(err.message)
+                // 400 - {"detail":"Another rebalance task from this api key is in progress."}
+                console.log(err)
+                return Promise.resolve({
+                  statusCode: 500,
+                  object: 'Rebalancing failed, please retry.'
+                })
+              })
+          })
+      })
+    }
+
+    return Promise.resolve({ statusCode: 400, object: 'User not found' })
   },
   exchanges: {
     add: async (id, exchange) => {

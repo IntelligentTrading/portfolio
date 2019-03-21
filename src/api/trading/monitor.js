@@ -13,6 +13,7 @@ listener.on('message', getProgress)
 
 function getProgress (err, key) {
   emitter.get(key, () => {
+    console.log('Checking progress...')
     tradingClient.progress(key.split('|')[1]).then(progress => {
       if (!progress.status.includes('complete')) {
         emitter.set(key, 'pending', 'PX', 20000, getProgress)
