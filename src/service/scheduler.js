@@ -8,11 +8,13 @@ db.connect()
 const scheduler = (module.exports = {
   rebalanceStalePortfolios: (olderThanMinutes = 240) => {
     return UserModel.find().then(users => {
-      let usersToRebalance = users.filter(user =>
-        // it will always be the first for now
-        moment(user.portfolio.lastDistributionRequest[0].updatedAt)
-          .add(olderThanMinutes, 'minutes')
-          .isBefore(moment())
+      let usersToRebalance = users.filter(
+        user =>
+          user.portfolio.lastDistributionRequest &&
+          // it will always be the first for now
+          moment(user.portfolio.lastDistributionRequest[0].updatedAt)
+            .add(olderThanMinutes, 'minutes')
+            .isBefore(moment())
       )
 
       let promises = []
