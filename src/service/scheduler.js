@@ -10,11 +10,13 @@ const scheduler = (module.exports = {
     return UserModel.find().then(users => {
       let usersToRebalance = users.filter(
         user =>
-          user.portfolio.lastDistributionRequest &&
-          // it will always be the first for now
-          moment(user.portfolio.lastDistributionRequest[0].updatedAt)
-            .add(olderThanMinutes, 'minutes')
-            .isBefore(moment())
+          !user.portfolio.lastDistributionRequest ||
+          (user.portfolio.lastDistributionRequest &&
+            user.portfolio.lastDistributionRequest[0] &&
+            // it will always be the first for now
+            moment(user.portfolio.lastDistributionRequest[0].updatedAt)
+              .add(olderThanMinutes, 'minutes')
+              .isBefore(moment()))
       )
 
       let promises = []
