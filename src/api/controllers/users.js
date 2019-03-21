@@ -12,8 +12,22 @@ const monitor = require('../trading/monitor')
 
 const ctrl = (module.exports = {
   create: async info => {
+    info.signupToken = crypto.pseudoRandomBytes(8).toString('hex')
     return UserModel.create(info).then(newUser => {
       return { statusCode: 201, object: newUser }
+
+      // for v2
+      /* return mailer.confirm(newUser.email, newUser.signupToken).then(() => {
+        return { statusCode: 201, object: newUser }
+      }) */
+    })
+  },
+  confirm: async signupToken => {
+    return UserModel.findOne({ signupToken: signupToken }).then(user => {
+      if (user) {
+        user.enabled = true
+        return { statusCode: 200 }
+      } else return { statusCode: 404 }
     })
   },
   getById: async id => {
@@ -126,7 +140,7 @@ const ctrl = (module.exports = {
                     '/api/portfolio_process/',
                     ''
                   )
-                  
+
                   monitor.schedule(
                     `${id}|${portfolioResult.portfolio_processing_request}`,
                     portfolioResult.retry_after
@@ -306,7 +320,9 @@ const ctrl = (module.exports = {
             results = results.filter(result => result != null)
             if (results) {
               let portfolio = results[0]
-              portfolio.pending = user.portfolio.lastDistributionRequest
+              portfolio.pending = user.portfolio
+                ? user.portfolio.lastDistributionRequest
+                : {}
               return portfolio
             }
             return {}
