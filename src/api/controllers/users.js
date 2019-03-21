@@ -8,7 +8,7 @@ const sec = require('../../lib/security/keymanager')
 const allocationCtrl = require('../controllers/allocation')
 const packsCtrl = require('../controllers/packs')
 const tradingClient = require('../trading/client')
-const monitor = require('../trading/monitor')
+const q = require('../trading/q')
 
 const ctrl = (module.exports = {
   create: async info => {
@@ -145,10 +145,11 @@ const ctrl = (module.exports = {
                   ''
                 )
 
-                monitor.schedule(
-                  `${user.id}|${portfolioResult.portfolio_processing_request}`,
+                q.enqueue(
+                  user.id,
+                  portfolioResult.portfolio_processing_request,
                   portfolioResult.retry_after
-                )
+                ).catch(err => console.log(err))
 
                 distributions = distributions.map(distribution => {
                   return new DistributionModel({
@@ -334,11 +335,6 @@ const ctrl = (module.exports = {
             console.log(err)
           })
       }
-    })
-  },
-  checkPending: async id => {
-    return monitor.checkPending(id, keys => {
-      return { status: 200, object: keys }
     })
   }
 })
