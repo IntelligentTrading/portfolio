@@ -137,43 +137,39 @@ const ctrl = (module.exports = {
                 x => x.label == desired_allocation.exchange
               ).credentials
             })
-            return tradingClient
-              .set(distributions)
-              .then(portfolioResult => {
-                portfolioResult.portfolio_processing_request = portfolioResult.portfolio_processing_request.replace(
-                  '/api/portfolio_process/',
-                  ''
-                )
+            return tradingClient.set(distributions).then(portfolioResult => {
+              portfolioResult.portfolio_processing_request = portfolioResult.portfolio_processing_request.replace(
+                '/api/portfolio_process/',
+                ''
+              )
 
-                q.enqueue(
-                  user.id,
-                  portfolioResult.portfolio_processing_request,
-                  portfolioResult.retry_after
-                ).catch(err => console.log(err))
+              q.enqueue(
+                user.id,
+                portfolioResult.portfolio_processing_request,
+                portfolioResult.retry_after
+              ).catch(err => console.log(err))
 
-                distributions = distributions.map(distribution => {
-                  return new DistributionModel({
-                    allocations: distribution.allocations,
-                    exchange: distribution.exchange,
-                    status: 'pending',
-                    pid: portfolioResult.portfolio_processing_request
-                  })
-                })
-
-                user.portfolio.lastDistributionRequest = distributions
-                user.save()
-
-                return portfolioResult.status
-              })
-              .catch(err => {
-                console.log(err.message)
-                // 400 - {"detail":"Another rebalance task from this api key is in progress."}
-                console.log(err)
-                return Promise.resolve({
-                  statusCode: 500,
-                  object: 'Rebalancing failed, please retry.'
+              distributions = distributions.map(distribution => {
+                return new DistributionModel({
+                  allocations: distribution.allocations,
+                  exchange: distribution.exchange,
+                  status: 'pending',
+                  pid: portfolioResult.portfolio_processing_request
                 })
               })
+
+              user.portfolio.lastDistributionRequest = distributions
+              user.save()
+
+              return portfolioResult.status
+            })
+          })
+          .catch(err => {
+            console.log(err)
+            return Promise.reject({
+              statusCode: err.statusCode,
+              message: err.error.detail
+            })
           })
       })
     }
@@ -331,8 +327,22 @@ const ctrl = (module.exports = {
             }
             return {}
           })
-          .catch(err => {
-            console.log(err)
+          .catch(exception => {
+            if (
+              exception.error.detail &&
+              exception.error.detail.includes('APIError')
+            ) {
+              Object.getOwnPropertyNames(exception.options.body)
+                .filter(p => p != 'api_key')
+                .forEach(exchange => {
+                  const exIdx = user.exchanges.findIndex(
+                    x => x.label == exchange
+                  )
+                  user.exchanges[exIdx].credentials.valid = false
+                })
+              user.save()
+            }
+            return Promise.reject(exception)
           })
       }
     })

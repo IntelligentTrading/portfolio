@@ -5,6 +5,7 @@ const UserModel = require('../models/Users')
 
 const q = (module.exports = {
   enqueue: async (uid, pid, timeout) => {
+    console.log(`${uid} added to the rebalancing queue.`)
     await rebalancingQ.add({ uid: uid, pid: pid }, { delay: timeout })
   }
 })
@@ -28,5 +29,5 @@ rebalancingQ.process(job => {
 })
 
 rebalancingQ.on('completed', job => {
-  console.log(job)
+  console.log(`${job.data.uid} rebalancing task completed.`)
 })
