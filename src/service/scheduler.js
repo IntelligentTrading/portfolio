@@ -8,16 +8,8 @@ db.connect()
 const scheduler = (module.exports = {
   rebalanceStalePortfolios: (olderThanMinutes = 240) => {
     return UserModel.find().then(users => {
-      let usersToRebalance = users.filter(
-        user =>
-          user.exchanges.length > 0 &&
-          (!user.portfolio.lastDistributionRequest ||
-            (user.portfolio.lastDistributionRequest &&
-              user.portfolio.lastDistributionRequest[0] &&
-              // it will always be the first for now
-              moment(user.portfolio.lastDistributionRequest[0].updatedAt)
-                .add(olderThanMinutes, 'minutes')
-                .isBefore(moment())))
+      let usersToRebalance = users.filter(user =>
+        isStale(user, olderThanMinutes)
       )
 
       let promises = []
@@ -29,6 +21,23 @@ const scheduler = (module.exports = {
     })
   }
 })
+
+function isStale (user, olderThanMinutes) {
+  if (user.exchanges.length == 0) return false
+
+  if (
+    !user.portfolio.lastDistributionRequest ||
+    !user.portfolio.lastDistributionRequest[0] ||
+    !user.portfolio.lastDistributionRequest[0].updatedAt
+  ) {
+    return true
+  }
+
+  // it will always be the first for now
+  return moment(user.portfolio.lastDistributionRequest[0].updatedAt)
+    .add(olderThanMinutes, 'minutes')
+    .isBefore(moment())
+}
 
 console.log('Running scheduled rebalancing check...')
 scheduler
