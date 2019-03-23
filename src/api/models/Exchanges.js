@@ -7,7 +7,7 @@ var exchangeSchema = new Schema({
     api_key: String,
     secret: String,
     preview: String,
-    valid: Boolean
+    valid: { type: Boolean, default: true }
   },
   enabled: { type: Boolean, default: true }
 })

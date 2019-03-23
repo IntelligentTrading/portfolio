@@ -6,7 +6,8 @@ var portfolioSchema = new Schema({
   id: String, // Binance
   packs: { type: [String], default: ['conservative'] },
   lastDistributionRequest: [Distribution.schema],
-  lastRebalance: Date
+  lastRebalance: Date,
+  autorebalance: { type: Boolean, default: false }
 })
 
 var Porfolio = mongoose.model('Portfolio', portfolioSchema)

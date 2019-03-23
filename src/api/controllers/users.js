@@ -307,6 +307,15 @@ const ctrl = (module.exports = {
       })
     }
   },
+  toggleAutorebalancing: async (id) => {
+    return ctrl.getById(id).then(user => {
+      if (user) {
+        user.portfolio.autorebalance = !user.portfolio.autorebalance
+        user.save()
+        return { statusCode: 200, object: user }
+      }
+    })
+  },
   portfolio: async id => {
     return ctrl.getById(id).then(user => {
       if (user) {
@@ -318,7 +327,7 @@ const ctrl = (module.exports = {
         return Promise.all(statusPromises)
           .then(results => {
             results = results.filter(result => result != null)
-            if (results) {
+            if (results.length > 0) {
               let portfolio = results[0]
               portfolio.pending = user.portfolio
                 ? user.portfolio.lastDistributionRequest
@@ -328,7 +337,9 @@ const ctrl = (module.exports = {
             return {}
           })
           .catch(exception => {
+            console.log(exception)
             if (
+              exception.error &&
               exception.error.detail &&
               exception.error.detail.includes('APIError')
             ) {

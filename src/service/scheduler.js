@@ -8,8 +8,8 @@ db.connect()
 const scheduler = (module.exports = {
   rebalanceStalePortfolios: (olderThanMinutes = 240) => {
     return UserModel.find().then(users => {
-      let usersToRebalance = users.filter(user =>
-        isStale(user, olderThanMinutes)
+      let usersToRebalance = users.filter(
+        user => isStale(user, olderThanMinutes) && user.portfolio.autorebalance
       )
 
       let promises = []

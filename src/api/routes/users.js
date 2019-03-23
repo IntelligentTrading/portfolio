@@ -28,8 +28,8 @@ router.delete('/:id/packs', (req, res) => {
   resolver(userCtrl.packs.delete(req.params.id, req.body), res)
 })
 
-router.get('/:id/rebalance/pending', (req, res) => {
-  resolver(userCtrl.checkPending(req.params.id), res)
+router.put('/:id/rebalance/toggle', (req, res) => {
+  resolver(userCtrl.toggleAutorebalancing(req.params.id), res)
 })
 
 router.put('/:id/rebalance', (req, res) => {
