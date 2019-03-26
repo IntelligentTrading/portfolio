@@ -17,7 +17,6 @@
     "ccxt": "^1.18.356",
     "cors": "^2.8.5",
     "express": "^4.16.4",
-    "express-sslify": "^1.2.0",
     "jsonwebtoken": "^8.5.0",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
