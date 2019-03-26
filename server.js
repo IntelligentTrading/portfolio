@@ -7,10 +7,11 @@ const morgan = require('morgan')
 const enforce = require('express-sslify')
 var jwt = require('jsonwebtoken')
 
+app.use(enforce.HTTPS({ trustProtoHeader: true }))
+
 require('./database').connect()
 boot(app)
 
-app.use(enforce.HTTPS({ trustProtoHeader: true }))
 app.use(morgan('dev'))
 app.use(express.static('public'))
 
