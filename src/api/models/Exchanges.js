@@ -15,7 +15,12 @@ var exchangeSchema = new Schema({
 var Exchange = mongoose.model('Exchange', exchangeSchema)
 exchangeSchema.methods.getShareableProperties = function () {
   const { _id, label, credentials, enabled } = this
-  return { _id, label, credentials: { preview: credentials.preview }, enabled }
+  return {
+    _id,
+    label,
+    credentials: { preview: credentials.preview, valid: credentials.valid },
+    enabled
+  }
 }
 
 module.exports = Exchange
