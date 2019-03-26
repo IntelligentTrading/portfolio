@@ -4,11 +4,13 @@ const app = express()
 const boot = require('./boot')
 const fs = require('fs')
 const morgan = require('morgan')
+const enforce = require('express-sslify')
 var jwt = require('jsonwebtoken')
 
 require('./database').connect()
 boot(app)
 
+app.use(enforce.HTTPS({ trustProtoHeader: true }))
 app.use(morgan('dev'))
 app.use(express.static('public'))
 
