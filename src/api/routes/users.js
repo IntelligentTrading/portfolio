@@ -41,7 +41,7 @@ router.get('/:id/portfolio', (req, res) => {
 })
 
 router.get('/:id?', (req, res) => {
-  if (req.params.id) {
+  if (req.params.id && req.params.id != "undefined") {
     resolver(userCtrl.getById(req.params.id), res)
   } else if (req.query.email) {
     resolver(userCtrl.getByEmail(req.query.email), res)
