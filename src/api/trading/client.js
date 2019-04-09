@@ -27,7 +27,7 @@ module.exports = {
       Buffer.from(exchangeAccount.credentials.secret, 'base64')
     )
 
-    options.body[exchangeAccount.label] = {
+    options.body[exchangeAccount.tradingCode] = {
       secret_key: decrypted_secret.toString(),
       api_key: decrypted_api.toString()
     }

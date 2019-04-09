@@ -186,6 +186,8 @@ const ctrl = (module.exports = {
             )
           ) {
             exchange.label = exchange.label.toLowerCase()
+            exchange.tradingCode =
+              exchange.label === 'coinbase' ? 'coinbasepro' : exchange.label
             user.exchanges.push(exchange)
             user.save()
             return {
@@ -307,7 +309,7 @@ const ctrl = (module.exports = {
       })
     }
   },
-  toggleAutorebalancing: async (id) => {
+  toggleAutorebalancing: async id => {
     return ctrl.getById(id).then(user => {
       if (user) {
         user.portfolio.autorebalance = !user.portfolio.autorebalance

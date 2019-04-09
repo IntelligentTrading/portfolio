@@ -3,6 +3,7 @@ var Schema = mongoose.Schema
 
 var exchangeSchema = new Schema({
   label: { type: String }, // Binance
+  tradingCode: { type: String }, // Binance
   credentials: {
     api_key: String,
     secret: String,
