@@ -20,6 +20,10 @@ router.put('/:id/packs/switch', (req, res) => {
   resolver(userCtrl.packs.switch(req.params.id, req.body.label), res)
 })
 
+router.put('/:id/packs/custom', (req, res) => {
+  resolver(userCtrl.packs.custom(req.params.id, req.body.allocations), res)
+})
+
 router.post('/:id/packs', (req, res) => {
   resolver(userCtrl.packs.add(req.params.id, req.body.label), res)
 })
