@@ -1,23 +1,7 @@
 var rpromise = require("request-promise");
 var node_svc_api = "https://itf-node-services-prod.herokuapp.com/api";
 var node_svc_api_key = process.env.NODE_SVC_API_KEY;
-
-var Bluebird = require("bluebird");
-var redis = require("redis");
-Bluebird.promisifyAll(redis.RedisClient.prototype);
-var redisClient = redis.createClient(process.env.REDIS_URL);
-
-redisClient.on("connect", function() {
-  console.log("Redis client connected");
-});
-
-redisClient.on("error", function(err) {
-  console.log("Something went wrong " + err);
-});
-
-module.exports = {
-  redis: redisClient,
-};
+var cache = require("../service/cache").redis;
 
 function Options() {
   return {
@@ -34,7 +18,7 @@ function getUSDRateFor(symbol) {
     .then(rate => {
       if (rate) {
         let symbolRate = JSON.parse(rate)[0].priceUsd;
-        redisClient.set("btc_rate", symbolRate);
+        cache.set("btc_rate", symbolRate);
       }
     })
     .catch(err => console.log("1:" + err));
