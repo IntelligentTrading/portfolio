@@ -18,7 +18,9 @@ function getUSDRateFor(symbol) {
     .then(rate => {
       if (rate) {
         let symbolRate = JSON.parse(rate)[0].priceUsd;
-        cache.set("btc_rate", symbolRate);
+        cache
+          .setAsync("btc_rate", symbolRate)
+          .then(() => console.log(`Updating rate: ${symbolRate}`));
       }
     })
     .catch(err => console.log("1:" + err));
